@@ -24,6 +24,7 @@ import { RelatedQuotes } from "@/components/RelatedQuotes";
 import { StoryCard } from "@/components/StoryCard";
 import { RandomStoryButton } from "@/components/RandomStoryButton";
 import { CoupangBanner } from "@/components/CoupangBanner";
+import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { AdSlot } from "@/components/AdSlot";
 import { JsonLd } from "@/components/JsonLd";
 
@@ -159,6 +160,11 @@ export default function StoryPage({ params }: { params: { id: string } }) {
               {story.todayAction}
             </p>
           </section>
+        )}
+
+        {/* Category-matching song (only when assigned; no autoplay) */}
+        {story.youtubeId && (
+          <YouTubeEmbed id={story.youtubeId} title={story.title} />
         )}
 
         {/* Prev / next */}

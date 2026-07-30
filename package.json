@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "cross-env NODE_OPTIONS=--require=./scripts/patch-fs.cjs next lint",
     "cache:images": "tsx scripts/cache-images.ts",
-    "gen:story": "tsx scripts/generate-story.ts"
+    "gen:story": "tsx scripts/generate-story.ts",
+    "fetch:youtube": "tsx scripts/fetch-youtube.ts"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

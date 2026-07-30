@@ -30,6 +30,8 @@ export type Story = {
   coupangUrl: string;
   /** ISO date string, e.g. "2026-07-30". */
   createdAt: string;
+  /** Optional YouTube video id of a category-matching song (see fetch-youtube). */
+  youtubeId?: string;
   /** SEO description; auto-derived from story if absent. */
   description?: string;
   /**

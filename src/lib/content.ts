@@ -101,6 +101,7 @@ function normalize(
     viewWeight: Number(raw.viewWeight ?? 0) || 0,
     coupangUrl: String(raw.coupangUrl ?? "").trim(),
     createdAt: String(raw.createdAt ?? "").trim() || "1970-01-01",
+    youtubeId: String(raw.youtubeId ?? "").trim() || undefined,
     description:
       String(raw.description ?? "").trim() || autoDescription(story, title),
     _source: source,

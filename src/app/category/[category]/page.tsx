@@ -20,10 +20,10 @@ export function generateMetadata({
 }): Metadata {
   const cat = getCategory(params.category);
   if (!cat) return {};
-  // Keyword-first title, e.g. "인생 명언 이야기 - 명언이야기".
+  // Keyword + situational phrase, e.g. "위로 명언 - 마음이 힘들 때 위로가 되는 글".
   return listMetadata({
-    title: `${cat.label} 명언 이야기`,
-    description: `${cat.blurb} ${cat.label} 명언 이야기 모음. 마음에 남는 이야기와 오늘의 교훈을 만나보세요.`,
+    title: `${cat.label} 명언 - ${cat.search} 글`,
+    description: `${cat.search} ${cat.label} 명언 이야기 모음. ${cat.blurb} 이야기와 오늘의 교훈을 만나보세요.`,
     path: `/category/${cat.slug}`,
   });
 }
@@ -52,7 +52,7 @@ export default function CategoryPage({
           {cat.label} 명언 이야기
         </h1>
         <p className="mt-2 text-subtle">
-          {cat.blurb} 이야기 {stories.length}편
+          {cat.search} {cat.label} 명언 이야기 {stories.length}편
         </p>
       </header>
 

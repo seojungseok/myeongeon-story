@@ -14,6 +14,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { CategoryBar } from "@/components/home/CategoryBar";
 import { Carousel } from "@/components/home/Carousel";
 import { ScrollRow } from "@/components/home/ScrollRow";
+import { collections } from "@/config/collections";
 
 // Static + daily revalidate: the random picks re-shuffle once a day, no per-request work.
 export const revalidate = 86400;
@@ -66,6 +67,22 @@ export default function HomePage() {
         <p className="mx-auto mt-2 font-serif text-subtle">{site.tagline}</p>
         <div className="mx-auto mt-5 max-w-xl">
           <SearchBar />
+        </div>
+      </section>
+
+      {/* Situational hubs — "이런 날 읽어보세요" (long-tail landing + internal links) */}
+      <section>
+        <SectionHead title="이런 날 읽어보세요" />
+        <div className="flex flex-wrap gap-2">
+          {collections.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/read/${c.slug}`}
+              className="rounded-full border border-line bg-white/70 px-4 py-2 font-sans text-sm text-ink transition hover:border-brand hover:text-brand"
+            >
+              {c.title}
+            </Link>
+          ))}
         </div>
       </section>
 

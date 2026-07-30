@@ -199,6 +199,19 @@ export function getStoriesByTag(tag: string): Story[] {
   return loadAll().filter((s) => s.tags.some((x) => x.toLowerCase() === t));
 }
 
+/** Stories matching a situational hub: any of its categories OR any of its tags. */
+export function getStoriesForCollection(c: {
+  categories?: string[];
+  tags?: string[];
+}): Story[] {
+  const cats = new Set(c.categories ?? []);
+  const tags = new Set((c.tags ?? []).map((t) => t.toLowerCase()));
+  if (cats.size === 0 && tags.size === 0) return [];
+  return loadAll().filter(
+    (s) => cats.has(s.category) || s.tags.some((t) => tags.has(t.toLowerCase())),
+  );
+}
+
 export function getAllTags(): { tag: string; count: number }[] {
   const counts = new Map<string, number>();
   for (const s of loadAll())

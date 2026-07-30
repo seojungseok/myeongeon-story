@@ -71,8 +71,13 @@ npm run gen:story -- --file scripts/quotes.txt
 - 읽는 시간 자동 계산, 날짜 기반 '오늘의' 선택 `src/lib/today.ts`
 
 **SEO / 수익**
-- 페이지별 meta(title/description)·OG, JSON-LD(Article/Breadcrumb/WebSite/Organization)
-- 글별 OG 이미지 자동 생성 + 사이트 기본 OG (`opengraph-image.tsx`)
+- 페이지별 meta(title/description)·OG, JSON-LD(Article/Quotation/Breadcrumb/WebSite/Organization)
+- 글별 OG 이미지 **요청 시(런타임) 생성** (`opengraph-image.tsx`, 빌드 안 깨지게) + 사이트 기본 OG
+- **상황·감정 검색어 최적화(롱테일 유입)**:
+  - 프롬프트가 생성글 태그·설명에 상황 검색어("삶이 힘들 때", "위로가 되는 글" 등) 삽입.
+  - **상황별 허브 페이지** `/read/[slug]` (`src/config/collections.ts`): "삶이 힘들 때 읽는 글", "이별 후 위로가 되는 글", "인간관계에 지쳤을 때" 등. 카테고리·태그로 글 자동 수집, 서로 교차 링크, 홈에도 노출, 사이트맵 포함.
+  - 카테고리 페이지 메타·본문에 상황 검색어 반영(`categories.ts`의 `search`).
+  - **한글 태그 페이지 404 수정**: `/tag/[tag]`를 요청 시 렌더(`dynamicParams=true`)로 바꿔 상황 태그가 랜딩 페이지가 되게 함(스토리도 영문 슬러그 id 사용 — 한글 정적 라우트 404 회피).
 - 광고: `AdSlot` 5곳 — 기본 미표시, `NEXT_PUBLIC_ADSENSE_CLIENT` 넣으면 렌더, `NEXT_PUBLIC_AD_PREVIEW=true`로 위치 확인
 - 쿠팡: `coupangUrl` 있을 때만 배너 + 파트너스 문구 자동
 - 푸터에 광고·제휴/기타 문의 메일(tjwjdtjr11@naver.com)

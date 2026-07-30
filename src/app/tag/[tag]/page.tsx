@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllTags, getStoriesByTag } from "@/lib/content";
+import { getStoriesByTag } from "@/lib/content";
 import { breadcrumbJsonLd, listMetadata } from "@/lib/seo";
 import { StoryGrid } from "@/components/StoryCard";
 import { JsonLd } from "@/components/JsonLd";
 
-export const dynamicParams = false;
+// Tags are Korean, and Next's static-route matching doesn't reliably match
+// percent-encoded Korean path segments (those pages 404). So render tag pages
+// ON DEMAND (dynamicParams) — each renders on first request and is then cached.
+export const dynamicParams = true;
+export const revalidate = 86400;
 
 export function generateStaticParams() {
-  // One static page per tag. Tags are Korean; with dynamicParams=false Next
-  // compares the RAW (encoded) request segment against these values, so we must
-  // return the ENCODED form here. The page component decodes params.tag below.
-  return getAllTags().map(({ tag }) => ({ tag: encodeURIComponent(tag) }));
+  return [] as { tag: string }[];
 }
 
 export function generateMetadata({

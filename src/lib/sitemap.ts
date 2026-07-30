@@ -1,6 +1,7 @@
 import { site } from "@/config/site";
 import { getAllStories, getAllTags } from "./content";
 import { categories } from "@/config/categories";
+import { collections } from "@/config/collections";
 
 /** Max URLs per story sitemap chunk (well under the 50k limit). */
 export const STORY_CHUNK_SIZE = 2000;
@@ -91,6 +92,14 @@ export function tagEntries(): UrlEntry[] {
 export function staticEntries(): UrlEntry[] {
   return [
     { loc: `${site.url}/`, lastmod: today(), changefreq: "daily", priority: 1.0 },
+    { loc: `${site.url}/stories`, lastmod: today(), changefreq: "daily", priority: 0.7 },
+    // Situational hub pages — high-value long-tail landing pages.
+    ...collections.map((c) => ({
+      loc: `${site.url}/read/${c.slug}`,
+      lastmod: today(),
+      changefreq: "weekly",
+      priority: 0.7,
+    })),
     { loc: `${site.url}/search`, changefreq: "monthly", priority: 0.3 },
   ];
 }

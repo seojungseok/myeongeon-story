@@ -1,0 +1,8 @@
+# 배치 생성용 명언 목록. 한 줄에 하나씩.
+# 형식:  명언  |  카테고리슬러그
+# (카테고리를 생략하면 --category 값을 쓰고, 그것도 없으면 AI가 알아서 골라줍니다)
+# 슬러그: life comfort courage relationship longing success effort love friend happiness challenge study time family hope
+
+행복은 멀리 있지 않다. 오늘 저녁 밥상 위에 있다. | happiness
+넘어지는 것은 부끄러운 일이 아니다. 일어서지 않는 것이 부끄러운 일이다. | courage
+시간은 우리를 기다려 주지 않지만, 추억은 우리를 기다려 준다. | time

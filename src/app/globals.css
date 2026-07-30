@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: theme("colors.paper");
+  color: theme("colors.ink");
+  /* Story-first: default reading type is serif (명조). UI uses .font-sans. */
+  font-family: theme("fontFamily.serif");
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* A faint paper grain: very soft warm gradient wash. */
+  background-image:
+    radial-gradient(1200px 600px at 50% -10%, rgba(139, 111, 88, 0.05), transparent 70%);
+  background-attachment: fixed;
+}
+
+@layer base {
+  body {
+    font-size: 1.125rem; /* ~18px, comfortable for older readers */
+    line-height: 1.9;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: theme("fontFamily.serif");
+    letter-spacing: -0.01em;
+  }
+  /* Selection in a warm sepia. */
+  ::selection {
+    background: rgba(139, 111, 88, 0.22);
+  }
+}
+
+@layer components {
+  .container-prose {
+    @apply mx-auto w-full max-w-prose px-5;
+  }
+  .container-wide {
+    @apply mx-auto w-full max-w-5xl px-5;
+  }
+
+  /* ── Story body: generous, serif, book-like ── */
+  .story-body p {
+    @apply mb-7 text-[1.2rem] leading-story text-ink;
+  }
+  .story-body strong {
+    @apply font-bold text-brand;
+  }
+  /* Subtle drop cap on the very first paragraph. */
+  .story-body > p:first-of-type::first-letter {
+    float: left;
+    font-family: theme("fontFamily.serif");
+    font-weight: 800;
+    font-size: 3.1rem;
+    line-height: 0.86;
+    margin: 0.08em 0.1em 0 0;
+    color: theme("colors.brand.DEFAULT");
+  }
+
+  /* ── Quote block: the emotional "landing" moment ── */
+  .quote-block {
+    @apply relative my-10 rounded-2xl border-l-4 border-sepia bg-paper-deep
+      px-7 py-8 pl-9;
+  }
+  .quote-block .quote-mark {
+    @apply pointer-events-none absolute left-3 top-1 font-serif text-6xl leading-none;
+    color: rgba(91, 74, 63, 0.22);
+  }
+  .quote-block .quote-text {
+    @apply font-serif text-[1.6rem] italic leading-snug text-ink sm:text-[1.8rem];
+  }
+  .quote-block .quote-cite {
+    @apply mt-4 block font-sans text-base not-italic text-subtle;
+  }
+
+  /* ── Cards: thin border, whisper-soft shadow ── */
+  .card {
+    @apply block rounded-2xl border border-line bg-white/70 shadow-card transition
+      duration-250 hover:-translate-y-0.5 hover:border-brand-soft hover:shadow-card-hover;
+  }
+
+  /* ── Pills / tags (sans) ── */
+  .chip {
+    @apply inline-flex items-center rounded-full border border-line bg-brand-tint
+      px-3.5 py-1 font-sans text-sm text-brand transition duration-250
+      hover:bg-brand hover:text-paper;
+  }
+
+  /* ── Buttons (sans) ── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3
+      font-sans font-medium text-paper transition duration-250 hover:bg-brand-soft
+      active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line
+      bg-white px-6 py-3 font-sans font-medium text-ink transition duration-250
+      hover:border-brand-soft hover:text-brand;
+  }
+
+  /* ── Warm highlight boxes (교훈 / 실천) ── */
+  .highlight-box {
+    @apply rounded-2xl border border-line bg-paper-deep px-7 py-6;
+  }
+  .highlight-label {
+    @apply mb-2 flex items-center gap-2 font-sans text-sm font-semibold tracking-wide
+      text-brand;
+  }
+
+  /* ── Faint dotted divider ── */
+  .divider-soft {
+    @apply border-0 border-t border-dashed border-line;
+  }
+}

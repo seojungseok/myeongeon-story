@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="15" fill="#FBF8F3"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="13.5" fill="none" stroke="#E7DECF" stroke-width="1.5"/>
+  <text x="32" y="30" font-family="Georgia, 'Nanum Myeongjo', serif" font-size="56" font-weight="800" fill="#5B4A3F" text-anchor="middle" dominant-baseline="middle">&#8220;</text>
+  <text x="32" y="52" font-family="Georgia, 'Nanum Myeongjo', serif" font-size="16" font-weight="700" fill="#8A6F58" text-anchor="middle">명언</text>
+</svg>

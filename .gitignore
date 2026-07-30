@@ -34,3 +34,6 @@ next-env.d.ts
 # cached images are generated at build time — keep them out of git.
 # (Remove the next line if you prefer to commit downloaded images.)
 /public/images/pexels/
+
+.vercel
+.env*

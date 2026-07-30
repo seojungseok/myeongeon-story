@@ -90,7 +90,9 @@ npm run gen:story -- --file scripts/quotes.txt
 
 ## 3. 미완료 / TODO
 
-- [ ] **콘텐츠가 3편뿐** (`courage-mandela`, `effort-cheonrigil`, `longing-eomma-son`) → 홈이 반복돼 보임. **대량 생성이 여전히 최우선.** `scripts/quotes.txt`는 철학자·인간관계 주제로 이미 재구성돼 있으니 `GEMINI_API_KEY`만 넣고 `npm run gen:story -- --file scripts/quotes.txt` → **생성물은 반드시 `prompt-template.txt` 말투 규칙대로 사람이 검토·수정**
+- [ ] **콘텐츠 4편** (`courage-mandela`, `effort-cheonrigil`, `longing-eomma-son`, `nietzsche-pain-stronger`) → 아직 적음, **계속 추가 필요.**
+  - ⚠️ **Gemini(`gen:story`) 자동 생성은 품질 미달**: flash·pro 모두 추상적 철학 명언을 옛날이야기로 풀 때 명언을 딴 교훈으로 바꾸고 제목에 가짜 인물을 지어냄(검증 완료). → **자동 생성분은 반드시 사람이 검토, 또는 손으로 집필 권장.**
+  - `nietzsche-pain-stronger`는 손으로 집필한 발행 품질 표본(명언 착지·작가·말투 정확). 이 방식으로 늘리는 걸 권장.
 - [ ] 로컬 환경변수 미설정: `GEMINI_API_KEY`, `YOUTUBE_API_KEY`, `PEXELS_API_KEY` 비어 있음 (Vercel엔 `PEXELS_API_KEY`, `NEXT_PUBLIC_SITE_URL` 설정됨)
 - [ ] `data/youtube-songs.json`은 **RSS 최신 15편만** → API 키 넣고 전체 수집 권장
 - [ ] `coupangUrl` 전부 비어 있음 → 상품 링크 넣어야 배너 노출

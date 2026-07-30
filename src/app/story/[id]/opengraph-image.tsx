@@ -1,25 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ImageResponse } from "next/og";
-import { getAllStories, getStory } from "@/lib/content";
+import { getStory } from "@/lib/content";
 import { site } from "@/config/site";
 
-// Pre-generate one OG image per story at build time (no runtime cost).
-export const dynamicParams = false;
+// OG images are rendered ON DEMAND (at request time), not at build. Auto-generated
+// stories can occasionally carry content or a cached photo that makes @vercel/og
+// throw during rendering ("RangeError: … DataView"); doing it at build would fail
+// the whole deploy. Rendering per-request keeps the build bulletproof — at worst a
+// single social-preview image 500s while the site and every page still ship.
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "명언이야기";
+export const dynamic = "force-dynamic";
 
-// @vercel/og (satori) resolves its default font via fileURLToPath(import.meta.url).
-// When the project lives under a NON-ASCII path (e.g. a Korean folder name on a
-// local Windows machine), that path percent-encodes and fileURLToPath throws
-// "Invalid URL", breaking prerender. Vercel builds under an ASCII path, so this
-// only skips OG generation on such local machines — deploys are unaffected.
-const CWD_IS_ASCII = /^[\x00-\x7F]*$/.test(process.cwd());
-
+// Never prerender at build (empty list); Next generates each image on first request.
 export function generateStaticParams() {
-  if (!CWD_IS_ASCII) return [];
-  return getAllStories().map((s) => ({ id: s.id }));
+  return [] as { id: string }[];
 }
 
 /** Read the cached local photo and return it as a data URI, or null. */

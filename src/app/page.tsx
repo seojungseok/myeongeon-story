@@ -1,43 +1,61 @@
 import Link from "next/link";
 import { site } from "@/config/site";
-import { categories, categoryLabel } from "@/config/categories";
+import { categoryLabel } from "@/config/categories";
 import {
   getAllStories,
   getPopularStories,
   getRecentStories,
-  getStoriesByCategory,
 } from "@/lib/content";
+import { getTodayPicks } from "@/lib/today";
 import type { Story } from "@/lib/types";
 import { StoryImage } from "@/components/StoryImage";
-import { StoryCard, StoryGrid } from "@/components/StoryCard";
+import { StoryCard } from "@/components/StoryCard";
 import { SearchBar } from "@/components/SearchBar";
-import { RandomStoryButton } from "@/components/RandomStoryButton";
 import { CategoryBar } from "@/components/home/CategoryBar";
 import { Carousel } from "@/components/home/Carousel";
 import { ScrollRow } from "@/components/home/ScrollRow";
 
-// Static + daily revalidate: date-based picks refresh once a day, no per-request work.
+// Static + daily revalidate: the random picks re-shuffle once a day, no per-request work.
 export const revalidate = 86400;
+
+/** Day index (UTC) — used to re-shuffle "추천" once per day, deterministically. */
+function daySeed(): number {
+  const d = new Date();
+  return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86_400_000);
+}
+
+/** Deterministic Fisher–Yates shuffle (mulberry32) so SSG output is stable per day. */
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const a = [...arr];
+  let s = seed >>> 0;
+  const rnd = () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(s ^ (s >>> 15), s | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export default function HomePage() {
   const all = getAllStories();
-  const banner = getPopularStories(5); // 오늘의 대표 이야기
-  const quotes = [...all]
-    .sort((a, b) => b.viewWeight - a.viewWeight)
-    .slice(0, 6); // 오늘의 명언
-  const popular = getPopularStories(8); // 추천 이야기
-  const recent = getRecentStories(6);
-  const allIds = all.map((s) => s.id);
 
-  // Category sections: top categories that actually have stories.
-  const catSections = categories
-    .map((c) => ({ c, items: getStoriesByCategory(c.slug) }))
-    .filter((x) => x.items.length > 0)
-    .slice(0, 6);
+  // 1) 추천(랜덤): recommended stories (by viewWeight), shuffled daily.
+  const recommended = seededShuffle(getPopularStories(8), daySeed()).slice(0, 5);
+
+  // 2) 오늘의 명언: just one, date-based.
+  const todayQuote = getTodayPicks().quote ?? all[0];
+
+  // 3) 최신글: 6 in a slider, rest via 더보기 → /stories.
+  const latest = getRecentStories(6);
 
   return (
     <div className="container-wide space-y-12">
-      {/* 2) Category bar (horizontal scroll) */}
+      {/* Category bar with edge arrows */}
       <CategoryBar />
 
       {/* Compact hero + search */}
@@ -51,66 +69,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3) Main banner slide (auto) */}
-      {banner.length > 0 && (
+      {/* 1) 추천 (랜덤) — main banner */}
+      {recommended.length > 0 && (
         <section>
+          <SectionHead title="추천 이야기" />
           <Carousel interval={4000}>
-            {banner.map((s) => (
+            {recommended.map((s) => (
               <BannerSlide key={s.id} story={s} />
             ))}
           </Carousel>
         </section>
       )}
 
-      {/* 4) 오늘의 명언 slide */}
-      {quotes.length > 0 && (
+      {/* 2) 오늘의 명언 — one card */}
+      {todayQuote && (
         <section>
           <SectionHead title="오늘의 명언" />
-          <Carousel interval={5000}>
-            {quotes.map((s) => (
-              <QuoteSlide key={s.id} story={s} />
-            ))}
-          </Carousel>
+          <QuoteCard story={todayQuote} />
         </section>
       )}
 
-      {/* 5) 추천 이야기 (horizontal) */}
-      {popular.length > 0 && (
+      {/* 3) 최신글 보기 — slider + 더보기 */}
+      {latest.length > 0 && (
         <section>
-          <SectionHead title="추천 이야기" />
-          <Row stories={popular} />
+          <SectionHead title="최신글 보기" href="/stories" />
+          <ScrollRow>
+            {latest.map((s) => (
+              <div key={s.id} className="w-[78%] shrink-0 snap-start sm:w-[300px]">
+                <StoryCard story={s} />
+              </div>
+            ))}
+          </ScrollRow>
         </section>
       )}
-
-      {/* 6) Category sections (horizontal) */}
-      {catSections.map(({ c, items }) => (
-        <section key={c.slug}>
-          <SectionHead title={`${c.label} 이야기`} href={`/category/${c.slug}`} />
-          <Row stories={items.slice(0, 8)} />
-        </section>
-      ))}
-
-      {/* 7) 최근 올라온 이야기 (grid) */}
-      <section>
-        <SectionHead title="최근 올라온 이야기" />
-        <StoryGrid stories={recent} />
-      </section>
-
-      {/* Random CTA */}
-      <section className="rounded-2xl border border-line bg-paper-deep px-6 py-10 text-center">
-        <h2 className="font-serif text-xl font-bold text-brand">
-          지금 마음에 닿는 이야기 하나
-        </h2>
-        <p className="mt-2 font-serif text-subtle">
-          무엇을 볼지 모르겠다면, 운에 맡겨보세요.
-        </p>
-        <div className="mt-5 flex justify-center gap-3">
-          <RandomStoryButton ids={allIds} />
-          <Link href="/bookmarks" className="btn-ghost">
-            ★ 즐겨찾기
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
@@ -156,38 +147,21 @@ function BannerSlide({ story }: { story: Story }) {
   );
 }
 
-/** Quote slide: big serif quote over a dimmed photo. */
-function QuoteSlide({ story }: { story: Story }) {
+/** Single quote card: big serif quote over a dimmed photo. */
+function QuoteCard({ story }: { story: Story }) {
   return (
-    <Link href={`/story/${story.id}`} className="relative block">
-      <div className="relative aspect-[16/11] w-full sm:aspect-[16/7]">
+    <Link href={`/story/${story.id}`} className="relative block overflow-hidden rounded-2xl">
+      <div className="relative aspect-[16/10] w-full sm:aspect-[16/6]">
         <StoryImage story={story} sizes="100vw" />
         <div className="absolute inset-0 bg-ink/65" />
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-paper">
-          <span className="font-serif text-4xl leading-none opacity-60">
-            &ldquo;
-          </span>
+          <span className="font-serif text-4xl leading-none opacity-60">&ldquo;</span>
           <p className="mt-1 max-w-2xl font-serif text-xl italic leading-snug drop-shadow sm:text-3xl">
             {story.quote}
           </p>
-          <p className="mt-4 font-sans text-sm opacity-90">
-            — {story.quoteAuthor}
-          </p>
+          <p className="mt-4 font-sans text-sm opacity-90">— {story.quoteAuthor}</p>
         </div>
       </div>
     </Link>
-  );
-}
-
-/** Horizontal card row. */
-function Row({ stories }: { stories: Story[] }) {
-  return (
-    <ScrollRow>
-      {stories.map((s) => (
-        <div key={s.id} className="w-[78%] shrink-0 snap-start sm:w-[300px]">
-          <StoryCard story={s} />
-        </div>
-      ))}
-    </ScrollRow>
   );
 }

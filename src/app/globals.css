@@ -136,6 +136,11 @@ body {
   .section-head {
     @apply mb-4 flex items-end justify-between gap-3;
   }
+  .cat-arrow {
+    @apply absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center
+      justify-center rounded-full border border-line bg-paper font-sans text-lg
+      leading-none text-brand shadow-card transition duration-250 hover:bg-brand-tint;
+  }
 }
 
 @layer utilities {

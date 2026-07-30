@@ -5,6 +5,7 @@ import { Nanum_Myeongjo, Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import { site } from "@/config/site";
 import { JsonLd } from "@/components/JsonLd";
+import { VisitCounter } from "@/components/VisitCounter";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 
 // AdSense loader is added only when a client id is configured, so the site ships
@@ -120,6 +121,7 @@ function SiteFooter() {
             tjwjdtjr11@naver.com
           </a>
         </p>
+        <VisitCounter />
         <p className="mt-2 text-xs leading-relaxed">
           © {new Date().getFullYear()} {site.name}. 모든 이야기는 마음을 위한
           창작·재구성이며, 명언 출처가 분명하지 않은 경우 &lsquo;작자 미상&rsquo;으로

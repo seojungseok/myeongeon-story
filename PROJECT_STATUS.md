@@ -77,6 +77,11 @@ npm run gen:story -- --file scripts/quotes.txt
 - 쿠팡: `coupangUrl` 있을 때만 배너 + 파트너스 문구 자동
 - 푸터에 광고·제휴/기타 문의 메일(tjwjdtjr11@naver.com)
 
+**방문자 카운터** (푸터)
+- `전체 방문 · 오늘` 표시. `src/app/api/visit/route.ts` + `src/components/VisitCounter.tsx`.
+- 저장은 무료 카운터 서비스 **abacus**(무가입, namespace `myeongeon-kr-v1`) 사용 — 별도 DB 불필요. 서버 라우트가 카운트, **httpOnly 쿠키로 브라우저·하루 1회만** 증가(중복 방지). 서비스 불통 시 위젯 자동 숨김.
+- 더 튼튼하게 하려면 Vercel KV(Upstash)로 교체 가능(route만 수정).
+
 **부가 기능**
 - 즐겨찾기(localStorage), 진행률 바, 이전/다음, 랜덤 추천, 인기글(viewWeight)
 - 유튜브 노래 **주제(theme) 기반 매칭**: `fetch-youtube.ts`가 곡 제목·설명·**해시태그**를 분석해 주제 태그(부모/부부/인연/이별/고향/사랑/희망/인생/친구)를 붙여 `data/youtube-songs.json`에 저장. `src/lib/songs.ts`가 빌드 시 **이야기의 카테고리·태그에서 주제를 뽑아, 가장 identity 있는 주제 우선순위로 곡을 매칭**(부모>부부>인연>…). 어머니 글엔 부모 곡, 이별 글엔 이별 곡만 붙고 **엉뚱한 매칭 없음**. 주제·카테고리 모두 안 맞으면 기본곡 **"당신이란사람"(eOso7tUWwB0)** 으로 대체. 글별 `youtubeId`에 값을 넣으면 그 곡으로 고정 override.

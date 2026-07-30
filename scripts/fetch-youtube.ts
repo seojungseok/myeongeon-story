@@ -1,12 +1,14 @@
 /**
  * fetch-youtube.ts — admin tool.
  *
- * Fetches EVERY video from a YouTube channel (via the Data API v3), classifies
- * each video by its TITLE into one of the 15 명언이야기 categories, and writes
- * the result to data/youtube-songs.json.
+ * Fetches videos from a YouTube channel (Data API v3, or public RSS fallback),
+ * derives one or more **theme tags** from each video's TITLE (and description as
+ * a fallback), and writes the result to data/youtube-songs.json.
  *
- * That file lets story generation auto-assign a category-matching song to a
- * story's `youtubeId` (see scripts/generate-story.ts).
+ * Themes — not a single bucket — are what let stories match songs precisely
+ * (a 어머니 story pulls only 부모 songs, a 이별 story only 이별 songs). The site's
+ * resolver (src/lib/songs.ts) matches a story to a song by theme overlap, and
+ * attaches NO song rather than a mismatched one.
  *
  * Env:   YOUTUBE_API_KEY   (https://console.cloud.google.com → YouTube Data API v3)
  * Usage: npm run fetch:youtube
@@ -23,45 +25,52 @@ const CHANNEL_ID = (args.channel as string) || "UCGNCbGigMXMlagvb8t6CbFA";
 const OUT = path.resolve(ROOT, (args.out as string) || "data/youtube-songs.json");
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
-// ── Category classifier ──────────────────────────────────────────────────────
-// Ordered most-specific → most-general. On a score tie, the earlier entry wins.
-const CATEGORIES: { slug: string; label: string; keywords: string[] }[] = [
-  { slug: "family", label: "가족", keywords: ["가족", "엄마", "어머니", "어머님", "어무이", "아버지", "아버님", "아빠", "부모", "부모님", "어버이", "자식", "자녀", "아들", "딸", "형제", "남매", "고향", "효", "부모님의 손"] },
-  { slug: "relationship", label: "인연", keywords: ["인연", "만남", "옷깃", "연분", "스침", "운명처럼", "부부", "아내", "남편", "여보", "임자", "반쪽", "백년", "해로", "동반자", "인생동반", "평생 함께", "곁에"] },
-  { slug: "love", label: "사랑", keywords: ["사랑", "연인", "그대", "당신", "임", "첫사랑", "짝사랑", "연애", "애인", "그리운 임", "설레", "선물", "두근"] },
-  { slug: "longing", label: "그리움", keywords: ["그리움", "그리워", "그립", "보고싶", "보고 싶", "추억", "이별", "떠난", "떠나", "잊지", "못 잊", "옛사랑", "눈물", "떠나간", "가슴 아픈", "아픈 사람"] },
-  { slug: "friend", label: "친구", keywords: ["친구", "우정", "벗", "동무", "동창", "옛 친구"] },
-  { slug: "comfort", label: "위로", keywords: ["위로", "괜찮아", "힘내", "토닥", "울지마", "울지 마", "지친", "아프지", "쉬어", "괜찮다"] },
-  { slug: "courage", label: "용기", keywords: ["용기", "이겨", "일어나", "일어서", "버텨", "견뎌", "강해", "굳세", "당당"] },
-  { slug: "challenge", label: "도전", keywords: ["도전", "시작", "새로운", "부딪", "뛰어", "달려"] },
-  { slug: "effort", label: "노력", keywords: ["노력", "땀", "열심", "최선", "인내", "참고", "묵묵", "고생"] },
-  { slug: "success", label: "성공", keywords: ["성공", "부자", "대박", "출세", "이루", "정상", "금의환향"] },
-  { slug: "study", label: "공부", keywords: ["공부", "배움", "학교", "지혜", "깨달", "스승", "책"] },
-  { slug: "hope", label: "희망", keywords: ["희망", "내일", "꿈", "별", "빛", "새벽", "봄날", "봄", "피어", "다시 핀"] },
-  { slug: "happiness", label: "행복", keywords: ["행복", "웃음", "웃어", "기쁨", "즐거", "미소", "좋은 날", "신나"] },
-  { slug: "time", label: "시간", keywords: ["시간", "세월", "흘러", "지나", "어느새", "오늘", "하루", "청춘 시절"] },
-  { slug: "life", label: "인생", keywords: ["인생", "삶", "살아", "산다", "운명", "팔자", "청춘", "나이", "황혼", "인생길"] },
+// ── Theme taxonomy ───────────────────────────────────────────────────────────
+// Each theme maps to a broad category (used as a coarser fallback). Ordered
+// most-specific → most-general; on a tie the earlier theme becomes "primary".
+// A song can carry MULTIPLE themes (e.g. "어머니 그리워" → 부모 + 이별).
+export const THEMES: { theme: string; category: string; keywords: string[] }[] = [
+  { theme: "부모", category: "family", keywords: ["어머니", "어머님", "엄마", "모정", "아버지", "아버님", "아빠", "부모", "부모님", "어버이", "어무이", "불효", "효"] },
+  { theme: "부부", category: "relationship", keywords: ["부부", "아내", "남편", "여보", "임자", "반쪽", "백년", "해로", "반려", "평생 함께", "평생 곁", "곁에 있어", "당신"] },
+  { theme: "이별", category: "longing", keywords: ["이별", "헤어짐", "헤어진", "헤어져", "안녕", "떠나간", "떠난", "떠나", "그리운", "그리움", "그리워", "그립", "보고픈", "보고 싶", "보고싶", "눈물", "못 잊", "잊지", "아픈 사람", "생각나면"] },
+  { theme: "고향", category: "longing", keywords: ["고향", "어릴적", "어릴 적", "시골", "향수", "옛집"] },
+  { theme: "인연", category: "relationship", keywords: ["인연", "운명", "만남", "옷깃", "연분", "운명처럼"] },
+  { theme: "사랑", category: "love", keywords: ["사랑", "첫사랑", "연인", "애인", "설레", "선물", "그대", "두근"] },
+  { theme: "희망", category: "hope", keywords: ["희망", "용기", "다시", "일어서", "일어나", "힘내", "이겨", "새날", "새벽"] },
+  { theme: "인생", category: "life", keywords: ["인생", "세월", "나이", "청춘", "황혼", "살아온", "살아온 날"] },
+  { theme: "친구", category: "friend", keywords: ["친구", "우정", "벗", "동무", "동창"] },
 ];
 
-type Classification = { slug: string; label: string; matched: boolean };
+type Classification = { themes: string[]; category: string };
 
-// Unmatched songs default here. Most K.HYUN tracks are mid-life love/emotion
-// ballads, so "love" is the safest bucket — and it keeps themed categories
-// clean (only keyword-matched songs land in them). The site's song resolver
-// (src/lib/songs.ts) fills any empty category from a fallback chain, so we no
-// longer need to scatter unmatched songs across categories.
-const DEFAULT_CATEGORY = { slug: "love", label: "사랑" };
-
-function classify(title: string): Classification {
-  const t = title.replace(/\s+/g, " ");
-  let best = { slug: "", label: "", score: 0 };
-  for (const c of CATEGORIES) {
-    let score = 0;
-    for (const kw of c.keywords) if (t.includes(kw)) score++;
-    if (score > best.score) best = { slug: c.slug, label: c.label, score };
+/** Score each theme by keyword hits in `text`; return matched themes + primary category. */
+function classifyText(text: string): { themes: string[]; primary: string | null; scores: Record<string, number> } {
+  // Split hashtags/underscores into words so "#당신이란사람" is read as keywords too.
+  const t = (text || "").replace(/[#_]+/g, " ").replace(/\s+/g, " ");
+  const scores: Record<string, number> = {};
+  let primary: string | null = null;
+  let best = 0;
+  for (const { theme, keywords } of THEMES) {
+    let s = 0;
+    for (const kw of keywords) if (t.includes(kw)) s++;
+    if (s > 0) {
+      scores[theme] = s;
+      if (s > best) {
+        best = s;
+        primary = theme;
+      }
+    }
   }
-  if (best.score > 0) return { slug: best.slug, label: best.label, matched: true };
-  return { slug: DEFAULT_CATEGORY.slug, label: DEFAULT_CATEGORY.label, matched: false };
+  return { themes: Object.keys(scores), primary, scores };
+}
+
+/** Classify by TITLE first; if the title yields nothing, fall back to DESCRIPTION. */
+function classify(title: string, description = ""): Classification {
+  let r = classifyText(title);
+  if (r.themes.length === 0 && description) r = classifyText(description);
+  if (r.themes.length === 0) return { themes: [], category: "" };
+  const category = THEMES.find((x) => x.theme === r.primary)?.category ?? "";
+  return { themes: r.themes, category };
 }
 
 // ── YouTube API ──────────────────────────────────────────────────────────────
@@ -69,8 +78,8 @@ type Video = {
   youtubeId: string;
   title: string;
   publishedAt: string;
+  themes: string[];
   category: string;
-  categoryLabel: string;
   matched: boolean;
 };
 
@@ -86,10 +95,8 @@ async function api(url: string): Promise<any> {
 async function getUploadsPlaylistId(channelId: string): Promise<string> {
   const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`;
   const data = await api(url);
-  const uploads =
-    data?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
-  if (!uploads)
-    throw new Error(`Channel "${channelId}" not found or has no uploads.`);
+  const uploads = data?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+  if (!uploads) throw new Error(`Channel "${channelId}" not found or has no uploads.`);
   return uploads;
 }
 
@@ -108,22 +115,19 @@ async function getAllVideos(playlistId: string): Promise<Video[]> {
 
     for (const item of data.items ?? []) {
       const title: string = item?.snippet?.title ?? "";
+      const description: string = item?.snippet?.description ?? "";
       const youtubeId: string =
         item?.contentDetails?.videoId ?? item?.snippet?.resourceId?.videoId ?? "";
-      // Skip private/deleted placeholders.
-      if (!youtubeId || title === "Private video" || title === "Deleted video")
-        continue;
-      const cls = classify(title);
+      if (!youtubeId || title === "Private video" || title === "Deleted video") continue;
+      const cls = classify(title, description);
       videos.push({
         youtubeId,
         title,
         publishedAt:
-          item?.contentDetails?.videoPublishedAt ??
-          item?.snippet?.publishedAt ??
-          "",
-        category: cls.slug,
-        categoryLabel: cls.label,
-        matched: cls.matched,
+          item?.contentDetails?.videoPublishedAt ?? item?.snippet?.publishedAt ?? "",
+        themes: cls.themes,
+        category: cls.category,
+        matched: cls.themes.length > 0,
       });
     }
 
@@ -149,8 +153,7 @@ function decodeEntities(s: string): string {
 async function fetchViaRss(channelId: string): Promise<Video[]> {
   const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
   const res = await fetch(url);
-  if (!res.ok)
-    throw new Error(`RSS feed ${res.status} for channel ${channelId}`);
+  if (!res.ok) throw new Error(`RSS feed ${res.status} for channel ${channelId}`);
   const xml = await res.text();
 
   const videos: Video[] = [];
@@ -158,16 +161,19 @@ async function fetchViaRss(channelId: string): Promise<Video[]> {
   for (const entry of entries) {
     const youtubeId = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1] ?? "";
     const title = decodeEntities(entry.match(/<title>([^<]*)<\/title>/)?.[1] ?? "");
+    const description = decodeEntities(
+      entry.match(/<media:description>([\s\S]*?)<\/media:description>/)?.[1] ?? "",
+    );
     const publishedAt = entry.match(/<published>([^<]+)<\/published>/)?.[1] ?? "";
     if (!youtubeId) continue;
-    const cls = classify(title);
+    const cls = classify(title, description);
     videos.push({
       youtubeId,
       title,
       publishedAt,
-      category: cls.slug,
-      categoryLabel: cls.label,
-      matched: cls.matched,
+      themes: cls.themes,
+      category: cls.category,
+      matched: cls.themes.length > 0,
     });
   }
   console.log(`  fetched ${videos.length} videos via RSS`);
@@ -179,7 +185,26 @@ async function main() {
   console.log(`[youtube] channel=${CHANNEL_ID}`);
 
   let videos: Video[];
-  if (API_KEY) {
+  if (args.raw) {
+    // Classify from a locally-provided raw list of videos (e.g. fetched via the
+    // server's YOUTUBE_API_KEY), without hitting the API from here.
+    const raw = JSON.parse(fs.readFileSync(path.resolve(ROOT, args.raw as string), "utf8"));
+    const list: any[] = Array.isArray(raw) ? raw : raw.videos ?? [];
+    videos = list
+      .filter((v) => v?.youtubeId && v.title !== "Private video" && v.title !== "Deleted video")
+      .map((v) => {
+        const cls = classify(String(v.title ?? ""), String(v.description ?? ""));
+        return {
+          youtubeId: String(v.youtubeId),
+          title: String(v.title ?? ""),
+          publishedAt: String(v.publishedAt ?? ""),
+          themes: cls.themes,
+          category: cls.category,
+          matched: cls.themes.length > 0,
+        };
+      });
+    console.log(`  classified ${videos.length} videos from ${args.raw}`);
+  } else if (API_KEY) {
     const uploads = await getUploadsPlaylistId(CHANNEL_ID);
     videos = await getAllVideos(uploads);
   } else {
@@ -190,15 +215,13 @@ async function main() {
     videos = await fetchViaRss(CHANNEL_ID);
   }
 
-  // Group by category for easy lookup during story generation.
-  const byCategory: Record<string, { youtubeId: string; title: string; publishedAt: string }[]> = {};
-  for (const c of CATEGORIES) byCategory[c.slug] = [];
+  // Index by theme (precise matching) and by category (coarse fallback).
+  const byTheme: Record<string, string[]> = {};
+  for (const { theme } of THEMES) byTheme[theme] = [];
+  const byCategory: Record<string, string[]> = {};
   for (const v of videos) {
-    (byCategory[v.category] ??= []).push({
-      youtubeId: v.youtubeId,
-      title: v.title,
-      publishedAt: v.publishedAt,
-    });
+    for (const th of v.themes) (byTheme[th] ??= []).push(v.youtubeId);
+    if (v.category) (byCategory[v.category] ??= []).push(v.youtubeId);
   }
 
   const output = {
@@ -207,9 +230,8 @@ async function main() {
     fetchedAt: new Date().toISOString(),
     totalVideos: videos.length,
     matchedCount: videos.filter((v) => v.matched).length,
-    counts: Object.fromEntries(
-      CATEGORIES.map((c) => [c.slug, byCategory[c.slug].length]),
-    ),
+    themeCounts: Object.fromEntries(THEMES.map((t) => [t.theme, byTheme[t.theme].length])),
+    byTheme,
     byCategory,
     videos,
   };
@@ -219,9 +241,14 @@ async function main() {
 
   console.log(`[youtube] saved ${videos.length} videos → ${path.relative(ROOT, OUT)}`);
   console.log(
-    "[youtube] per-category:",
-    CATEGORIES.map((c) => `${c.label} ${byCategory[c.slug].length}`).join("  "),
+    "[youtube] per-theme:",
+    THEMES.map((t) => `${t.theme} ${byTheme[t.theme].length}`).join("  "),
   );
+  const unmatched = videos.filter((v) => !v.matched);
+  if (unmatched.length) {
+    console.log(`[youtube] 주제 미분류 ${unmatched.length}편 (노래 안 붙음):`);
+    for (const v of unmatched) console.log(`   · ${v.title}`);
+  }
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

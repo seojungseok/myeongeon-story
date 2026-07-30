@@ -79,7 +79,8 @@ npm run gen:story -- --file scripts/quotes.txt
 
 **부가 기능**
 - 즐겨찾기(localStorage), 진행률 바, 이전/다음, 랜덤 추천, 인기글(viewWeight)
-- 유튜브 노래 자동 매칭: `fetch-youtube.ts`(API 키 없으면 **공개 RSS 폴백**) → `data/youtube-songs.json`. **노래는 글에 고정하지 않고 `src/lib/songs.ts`가 빌드 시 카테고리로 매칭**(카테고리별 폴백 체인 + 전역 폴백). `fetch:youtube` 재실행만으로 모든 글의 노래가 자동 갱신됨(글별 `youtubeId`에 값을 넣으면 그 곡으로 고정 override).
+- 유튜브 노래 **주제(theme) 기반 매칭**: `fetch-youtube.ts`가 곡 제목·설명·**해시태그**를 분석해 주제 태그(부모/부부/인연/이별/고향/사랑/희망/인생/친구)를 붙여 `data/youtube-songs.json`에 저장. `src/lib/songs.ts`가 빌드 시 **이야기의 카테고리·태그에서 주제를 뽑아, 가장 identity 있는 주제 우선순위로 곡을 매칭**(부모>부부>인연>…). 어머니 글엔 부모 곡, 이별 글엔 이별 곡만 붙고 **엉뚱한 매칭 없음**. 주제·카테고리 모두 안 맞으면 기본곡 **"당신이란사람"(eOso7tUWwB0)** 으로 대체. 글별 `youtubeId`에 값을 넣으면 그 곡으로 고정 override.
+  - `fetch:youtube` 재실행만으로 새 곡이 자동 분류·재매칭됨. **API 키 있으면 전체 카탈로그**(현재 80편), 없으면 RSS 최신 15편. (키는 Vercel Sensitive라 로컬 실행 시 `.env.local`에 직접 입력 필요. `--raw <file>`로 외부에서 받은 목록을 분류만 할 수도 있음.)
 - 이미지 중복 회피: 이야기 id별 파일명 + Pexels 후보 중 전역 dedup 선택
 
 **디자인**: 미색 배경·명조체·세피아 감성 톤, 모바일 우선 반응형, 부드러운 캐러셀

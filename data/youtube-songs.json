@@ -1,243 +1,1112 @@
 {
   "channelId": "UCGNCbGigMXMlagvb8t6CbFA",
   "source": "rss",
-  "fetchedAt": "2026-07-30T11:31:51.324Z",
-  "totalVideos": 15,
-  "matchedCount": 14,
-  "counts": {
-    "family": 1,
-    "relationship": 1,
-    "love": 9,
-    "longing": 3,
-    "friend": 0,
-    "comfort": 0,
-    "courage": 0,
-    "challenge": 0,
-    "effort": 0,
-    "success": 0,
-    "study": 0,
-    "hope": 0,
-    "happiness": 0,
-    "time": 1,
-    "life": 0
+  "fetchedAt": "2026-07-30T13:32:33.319Z",
+  "totalVideos": 80,
+  "matchedCount": 76,
+  "themeCounts": {
+    "부모": 4,
+    "부부": 28,
+    "이별": 31,
+    "고향": 0,
+    "인연": 7,
+    "사랑": 37,
+    "희망": 6,
+    "인생": 21,
+    "친구": 0
+  },
+  "byTheme": {
+    "부모": [
+      "3OGsmw3Iq-I",
+      "LnAfdgXFTeM",
+      "SZaqnbOGV6s",
+      "IaQyfD4uAuE"
+    ],
+    "부부": [
+      "lVw48VGQAwM",
+      "GGVwWa9ysnM",
+      "Iy1hd7QP220",
+      "cZUMho9pdu0",
+      "ymspDb-qh_8",
+      "WDx9GVYpyuY",
+      "2B6-iI1rZ80",
+      "-Y9_wITtMn8",
+      "L9qPryEb-N0",
+      "59Gq7dYO-Oo",
+      "shBVohtW2lA",
+      "nb9hhSGsuSc",
+      "tq89mL1JlPc",
+      "ukSixWKtM3c",
+      "BwYuI67YBDc",
+      "TCDKxxaT-ck",
+      "O3yoDVaQqOU",
+      "2ERrqsBCc40",
+      "DGRgeT35cfY",
+      "ja00maTDaPA",
+      "B9HhTuT4i7o",
+      "9mqspxn-nFs",
+      "eOso7tUWwB0",
+      "3q3fPPt9T1E",
+      "UP-gCubRFvs",
+      "DCybuF82P_M",
+      "d33uei57z3k",
+      "Byqk_9cear8"
+    ],
+    "이별": [
+      "PkWbiveGyUU",
+      "Hw7FNkG9QUc",
+      "3OGsmw3Iq-I",
+      "WFBpq1NIZN8",
+      "3siHd_G6REs",
+      "Vu2S7z_USws",
+      "WnwakxhwB9k",
+      "cZUMho9pdu0",
+      "UKXcTS4BsDw",
+      "p42Gux5eSeM",
+      "MiD8lML0CVE",
+      "ymspDb-qh_8",
+      "z1am3HX0VZk",
+      "L9qPryEb-N0",
+      "LnAfdgXFTeM",
+      "2smkUayHwps",
+      "hCVEcQR6m-A",
+      "ukSixWKtM3c",
+      "oT8J_daxtgU",
+      "_l88JmsLkL0",
+      "uWRlwPRLfis",
+      "mP98-oHwAfc",
+      "SBUpX0Zf6Ms",
+      "_T3ONaRpTdI",
+      "3q3fPPt9T1E",
+      "mWQazkcEjhI",
+      "lDjXvngztQE",
+      "zvIgsHjpgiM",
+      "w84B6v2qK-0",
+      "0EWgZiPSpS8",
+      "QFq-MLor-Po"
+    ],
+    "고향": [],
+    "인연": [
+      "ow0FfNRRJdM",
+      "60CYk23RSfI",
+      "BwYuI67YBDc",
+      "TCDKxxaT-ck",
+      "lZuxmxZVX5s",
+      "wcYvFfxuL-4",
+      "SBUpX0Zf6Ms"
+    ],
+    "사랑": [
+      "ypQKZVSxg60",
+      "pMRBf7p-Lf0",
+      "GGVwWa9ysnM",
+      "Iy1hd7QP220",
+      "--VJpTdqv8s",
+      "WFBpq1NIZN8",
+      "3siHd_G6REs",
+      "ow0FfNRRJdM",
+      "-Y9_wITtMn8",
+      "shBVohtW2lA",
+      "2smkUayHwps",
+      "uHA0X8QuBSc",
+      "ukSixWKtM3c",
+      "oT8J_daxtgU",
+      "BwYuI67YBDc",
+      "TCDKxxaT-ck",
+      "lZuxmxZVX5s",
+      "wcYvFfxuL-4",
+      "qYugL0JLrhw",
+      "_l88JmsLkL0",
+      "JBr7H598feU",
+      "iog2sz6OflY",
+      "DGRgeT35cfY",
+      "ja00maTDaPA",
+      "B9HhTuT4i7o",
+      "_T3ONaRpTdI",
+      "9mqspxn-nFs",
+      "sA9TQn-kroA",
+      "eOso7tUWwB0",
+      "3q3fPPt9T1E",
+      "UP-gCubRFvs",
+      "DCybuF82P_M",
+      "d33uei57z3k",
+      "lDjXvngztQE",
+      "zvIgsHjpgiM",
+      "IaQyfD4uAuE",
+      "mcLvtfZL2Ss"
+    ],
+    "희망": [
+      "--VJpTdqv8s",
+      "7QV2JSvGgIo",
+      "cZUMho9pdu0",
+      "wcYvFfxuL-4",
+      "dLu6MMqV4Vk",
+      "jcLWPIb8S80"
+    ],
+    "인생": [
+      "WFBpq1NIZN8",
+      "3siHd_G6REs",
+      "U2lgNQFANIo",
+      "G8PZVKvSvM0",
+      "WDx9GVYpyuY",
+      "2B6-iI1rZ80",
+      "-Y9_wITtMn8",
+      "L9qPryEb-N0",
+      "shBVohtW2lA",
+      "LnAfdgXFTeM",
+      "nb9hhSGsuSc",
+      "RzxoQQZsJuA",
+      "MlfiXieI2w8",
+      "TCDKxxaT-ck",
+      "qYugL0JLrhw",
+      "JBr7H598feU",
+      "B9HhTuT4i7o",
+      "_T3ONaRpTdI",
+      "9mqspxn-nFs",
+      "sA9TQn-kroA",
+      "UP-gCubRFvs"
+    ],
+    "친구": []
   },
   "byCategory": {
-    "family": [
-      {
-        "youtubeId": "3OGsmw3Iq-I",
-        "title": "부모님의 손 | 듣는 순간 부모님이 떠오르는 눈물의 트로트 발라드",
-        "publishedAt": "2026-05-29T17:53:19+00:00"
-      }
-    ],
     "relationship": [
-      {
-        "youtubeId": "ow0FfNRRJdM",
-        "title": "K.hyun(케이현) - 사랑이 내게 왔네 🌸 | 운명처럼 다가온 감성 트로트 신곡",
-        "publishedAt": "2026-04-12T15:42:27+00:00"
-      }
+      "lVw48VGQAwM",
+      "Iy1hd7QP220",
+      "ow0FfNRRJdM",
+      "60CYk23RSfI",
+      "ymspDb-qh_8",
+      "WDx9GVYpyuY",
+      "2B6-iI1rZ80",
+      "-Y9_wITtMn8",
+      "59Gq7dYO-Oo",
+      "shBVohtW2lA",
+      "nb9hhSGsuSc",
+      "tq89mL1JlPc",
+      "ukSixWKtM3c",
+      "TCDKxxaT-ck",
+      "O3yoDVaQqOU",
+      "2ERrqsBCc40",
+      "SBUpX0Zf6Ms",
+      "DGRgeT35cfY",
+      "ja00maTDaPA",
+      "B9HhTuT4i7o",
+      "9mqspxn-nFs",
+      "eOso7tUWwB0",
+      "3q3fPPt9T1E",
+      "UP-gCubRFvs",
+      "DCybuF82P_M",
+      "d33uei57z3k",
+      "Byqk_9cear8"
     ],
     "love": [
-      {
-        "youtubeId": "lVw48VGQAwM",
-        "title": "당신이 있어서 - 끝까지 나를 믿어준 사람에게 바치는 노래",
-        "publishedAt": "2026-06-24T16:09:38+00:00"
-      },
-      {
-        "youtubeId": "ypQKZVSxg60",
-        "title": "안 떨린다 해놓고 밤새 잠 못 자는 사랑 💕 사랑 참 웃긴다 #shorts",
-        "publishedAt": "2026-06-16T15:41:57+00:00"
-      },
-      {
-        "youtubeId": "pMRBf7p-Lf0",
-        "title": "[트로트] 사랑 참 웃긴다 - K.HYUN | 설레는 중년의 사랑 트로트댄스🎶 신곡",
-        "publishedAt": "2026-06-15T17:55:28+00:00"
-      },
-      {
-        "youtubeId": "GGVwWa9ysnM",
-        "title": "당신은 나의 선물｜사랑하는 사람에게 바치는 노래",
-        "publishedAt": "2026-06-09T14:34:06+00:00"
-      },
-      {
-        "youtubeId": "Iy1hd7QP220",
-        "title": "당신은 나의 선물 | 평생 곁에 있어준 당신에게 바치는 노래",
-        "publishedAt": "2026-06-08T17:29:00+00:00"
-      },
-      {
-        "youtubeId": "--VJpTdqv8s",
-        "title": "바람처럼 다시 | 스쳐간 사랑이 다시 떠오르는 감성 발라드",
-        "publishedAt": "2026-05-25T15:44:30+00:00"
-      },
-      {
-        "youtubeId": "WFBpq1NIZN8",
-        "title": "정원의 약속 | 세월이 흘러도 잊지 못한 첫사랑 #중년음악",
-        "publishedAt": "2026-05-24T18:01:24+00:00"
-      },
-      {
-        "youtubeId": "3siHd_G6REs",
-        "title": "정원의 약속 | 세월이 흘러도 잊지 못한 첫사랑",
-        "publishedAt": "2026-05-24T17:15:25+00:00"
-      },
-      {
-        "youtubeId": "7QV2JSvGgIo",
-        "title": "총맞은 것처럼 (2026 Rearranged Ver.) | K.HYUN",
-        "publishedAt": "2026-03-14T14:08:38+00:00"
-      }
+      "ypQKZVSxg60",
+      "pMRBf7p-Lf0",
+      "GGVwWa9ysnM",
+      "--VJpTdqv8s",
+      "WFBpq1NIZN8",
+      "3siHd_G6REs",
+      "uHA0X8QuBSc",
+      "BwYuI67YBDc",
+      "lZuxmxZVX5s",
+      "wcYvFfxuL-4",
+      "qYugL0JLrhw",
+      "JBr7H598feU",
+      "iog2sz6OflY",
+      "sA9TQn-kroA",
+      "mcLvtfZL2Ss"
     ],
     "longing": [
-      {
-        "youtubeId": "PkWbiveGyUU",
-        "title": "웃으며 떠난 사람아… 그 웃음이 이별이었다 #감성트로트",
-        "publishedAt": "2026-06-02T14:42:19+00:00"
-      },
-      {
-        "youtubeId": "Hw7FNkG9QUc",
-        "title": "웃으며 떠난 사람아｜눈물 참고 웃으며 떠난 그 사람… 애절한 이별 트로트",
-        "publishedAt": "2026-06-02T14:04:05+00:00"
-      },
-      {
-        "youtubeId": "Vu2S7z_USws",
-        "title": "생각나면 아픈 사람 | 혼자 듣는 그리움 발라드  #이별노래  #눈물버튼",
-        "publishedAt": "2026-02-13T18:48:26+00:00"
-      }
+      "PkWbiveGyUU",
+      "Hw7FNkG9QUc",
+      "Vu2S7z_USws",
+      "WnwakxhwB9k",
+      "UKXcTS4BsDw",
+      "p42Gux5eSeM",
+      "MiD8lML0CVE",
+      "z1am3HX0VZk",
+      "L9qPryEb-N0",
+      "2smkUayHwps",
+      "hCVEcQR6m-A",
+      "oT8J_daxtgU",
+      "_l88JmsLkL0",
+      "uWRlwPRLfis",
+      "mP98-oHwAfc",
+      "_T3ONaRpTdI",
+      "mWQazkcEjhI",
+      "lDjXvngztQE",
+      "zvIgsHjpgiM",
+      "w84B6v2qK-0",
+      "0EWgZiPSpS8",
+      "QFq-MLor-Po"
     ],
-    "friend": [],
-    "comfort": [],
-    "courage": [],
-    "challenge": [],
-    "effort": [],
-    "success": [],
-    "study": [],
-    "hope": [],
-    "happiness": [],
-    "time": [
-      {
-        "youtubeId": "U2lgNQFANIo",
-        "title": "인생의 가을 🍂 1시간 연속재생 | 트로트발라드 - 뜨겁게 살지 못한 시간들 [50대 60대 힐링]",
-        "publishedAt": "2026-02-05T13:29:25+00:00"
-      }
+    "family": [
+      "3OGsmw3Iq-I",
+      "LnAfdgXFTeM",
+      "SZaqnbOGV6s",
+      "IaQyfD4uAuE"
     ],
-    "life": []
+    "hope": [
+      "7QV2JSvGgIo",
+      "cZUMho9pdu0",
+      "dLu6MMqV4Vk",
+      "jcLWPIb8S80"
+    ],
+    "life": [
+      "U2lgNQFANIo",
+      "G8PZVKvSvM0",
+      "RzxoQQZsJuA",
+      "MlfiXieI2w8"
+    ]
   },
   "videos": [
     {
       "youtubeId": "lVw48VGQAwM",
       "title": "당신이 있어서 - 끝까지 나를 믿어준 사람에게 바치는 노래",
-      "publishedAt": "2026-06-24T16:09:38+00:00",
-      "category": "love",
-      "categoryLabel": "사랑",
+      "publishedAt": "2026-06-24T16:09:38Z",
+      "themes": [
+        "부부"
+      ],
+      "category": "relationship",
       "matched": true
     },
     {
       "youtubeId": "ypQKZVSxg60",
       "title": "안 떨린다 해놓고 밤새 잠 못 자는 사랑 💕 사랑 참 웃긴다 #shorts",
-      "publishedAt": "2026-06-16T15:41:57+00:00",
+      "publishedAt": "2026-06-16T15:41:57Z",
+      "themes": [
+        "사랑"
+      ],
       "category": "love",
-      "categoryLabel": "사랑",
       "matched": true
     },
     {
       "youtubeId": "pMRBf7p-Lf0",
       "title": "[트로트] 사랑 참 웃긴다 - K.HYUN | 설레는 중년의 사랑 트로트댄스🎶 신곡",
-      "publishedAt": "2026-06-15T17:55:28+00:00",
+      "publishedAt": "2026-06-15T17:55:28Z",
+      "themes": [
+        "사랑"
+      ],
       "category": "love",
-      "categoryLabel": "사랑",
       "matched": true
     },
     {
       "youtubeId": "GGVwWa9ysnM",
       "title": "당신은 나의 선물｜사랑하는 사람에게 바치는 노래",
-      "publishedAt": "2026-06-09T14:34:06+00:00",
+      "publishedAt": "2026-06-09T14:34:06Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
       "category": "love",
-      "categoryLabel": "사랑",
       "matched": true
     },
     {
       "youtubeId": "Iy1hd7QP220",
       "title": "당신은 나의 선물 | 평생 곁에 있어준 당신에게 바치는 노래",
-      "publishedAt": "2026-06-08T17:29:00+00:00",
-      "category": "love",
-      "categoryLabel": "사랑",
+      "publishedAt": "2026-06-08T17:29:00Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
+      "category": "relationship",
       "matched": true
     },
     {
       "youtubeId": "PkWbiveGyUU",
       "title": "웃으며 떠난 사람아… 그 웃음이 이별이었다 #감성트로트",
-      "publishedAt": "2026-06-02T14:42:19+00:00",
+      "publishedAt": "2026-06-02T14:42:19Z",
+      "themes": [
+        "이별"
+      ],
       "category": "longing",
-      "categoryLabel": "그리움",
       "matched": true
     },
     {
       "youtubeId": "Hw7FNkG9QUc",
       "title": "웃으며 떠난 사람아｜눈물 참고 웃으며 떠난 그 사람… 애절한 이별 트로트",
-      "publishedAt": "2026-06-02T14:04:05+00:00",
+      "publishedAt": "2026-06-02T14:04:05Z",
+      "themes": [
+        "이별"
+      ],
       "category": "longing",
-      "categoryLabel": "그리움",
       "matched": true
     },
     {
       "youtubeId": "3OGsmw3Iq-I",
       "title": "부모님의 손 | 듣는 순간 부모님이 떠오르는 눈물의 트로트 발라드",
-      "publishedAt": "2026-05-29T17:53:19+00:00",
+      "publishedAt": "2026-05-29T17:53:19Z",
+      "themes": [
+        "부모",
+        "이별"
+      ],
       "category": "family",
-      "categoryLabel": "가족",
       "matched": true
     },
     {
       "youtubeId": "--VJpTdqv8s",
       "title": "바람처럼 다시 | 스쳐간 사랑이 다시 떠오르는 감성 발라드",
-      "publishedAt": "2026-05-25T15:44:30+00:00",
+      "publishedAt": "2026-05-25T15:44:30Z",
+      "themes": [
+        "사랑",
+        "희망"
+      ],
       "category": "love",
-      "categoryLabel": "사랑",
       "matched": true
     },
     {
       "youtubeId": "WFBpq1NIZN8",
       "title": "정원의 약속 | 세월이 흘러도 잊지 못한 첫사랑 #중년음악",
-      "publishedAt": "2026-05-24T18:01:24+00:00",
+      "publishedAt": "2026-05-24T18:01:24Z",
+      "themes": [
+        "이별",
+        "사랑",
+        "인생"
+      ],
       "category": "love",
-      "categoryLabel": "사랑",
       "matched": true
     },
     {
       "youtubeId": "3siHd_G6REs",
       "title": "정원의 약속 | 세월이 흘러도 잊지 못한 첫사랑",
-      "publishedAt": "2026-05-24T17:15:25+00:00",
+      "publishedAt": "2026-05-24T17:15:25Z",
+      "themes": [
+        "이별",
+        "사랑",
+        "인생"
+      ],
       "category": "love",
-      "categoryLabel": "사랑",
       "matched": true
     },
     {
       "youtubeId": "ow0FfNRRJdM",
       "title": "K.hyun(케이현) - 사랑이 내게 왔네 🌸 | 운명처럼 다가온 감성 트로트 신곡",
-      "publishedAt": "2026-04-12T15:42:27+00:00",
+      "publishedAt": "2026-04-12T15:42:27Z",
+      "themes": [
+        "인연",
+        "사랑"
+      ],
       "category": "relationship",
-      "categoryLabel": "인연",
       "matched": true
     },
     {
       "youtubeId": "7QV2JSvGgIo",
       "title": "총맞은 것처럼 (2026 Rearranged Ver.) | K.HYUN",
-      "publishedAt": "2026-03-14T14:08:38+00:00",
-      "category": "love",
-      "categoryLabel": "사랑",
-      "matched": false
+      "publishedAt": "2026-03-14T14:08:38Z",
+      "themes": [
+        "희망"
+      ],
+      "category": "hope",
+      "matched": true
     },
     {
       "youtubeId": "Vu2S7z_USws",
       "title": "생각나면 아픈 사람 | 혼자 듣는 그리움 발라드  #이별노래  #눈물버튼",
-      "publishedAt": "2026-02-13T18:48:26+00:00",
+      "publishedAt": "2026-02-13T18:48:26Z",
+      "themes": [
+        "이별"
+      ],
       "category": "longing",
-      "categoryLabel": "그리움",
       "matched": true
     },
     {
       "youtubeId": "U2lgNQFANIo",
       "title": "인생의 가을 🍂 1시간 연속재생 | 트로트발라드 - 뜨겁게 살지 못한 시간들 [50대 60대 힐링]",
-      "publishedAt": "2026-02-05T13:29:25+00:00",
-      "category": "time",
-      "categoryLabel": "시간",
+      "publishedAt": "2026-02-05T13:29:25Z",
+      "themes": [
+        "인생"
+      ],
+      "category": "life",
       "matched": true
+    },
+    {
+      "youtubeId": "WnwakxhwB9k",
+      "title": "찬바람 부는 밤,아무 말 없이 떠난 사람만 계속 생각난다. #감성트로트 #이별노래",
+      "publishedAt": "2026-02-03T02:10:12Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "60CYk23RSfI",
+      "title": "인연은 흐르는 물처럼... 놓아주면 편해집니다 😢",
+      "publishedAt": "2026-02-02T15:43:40Z",
+      "themes": [
+        "인연"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "G8PZVKvSvM0",
+      "title": "인생의 가을 | 트로트발라드 — 뜨겁게 살지 못한 시간들 🍂",
+      "publishedAt": "2026-02-01T09:23:49Z",
+      "themes": [
+        "인생"
+      ],
+      "category": "life",
+      "matched": true
+    },
+    {
+      "youtubeId": "cZUMho9pdu0",
+      "title": "지나간다 - 힘들 때 3분만 들어보세요 | 포기하지 마세요 | 파워 록 발라드",
+      "publishedAt": "2026-01-29T17:17:56Z",
+      "themes": [
+        "부부",
+        "이별",
+        "희망"
+      ],
+      "category": "hope",
+      "matched": true
+    },
+    {
+      "youtubeId": "UKXcTS4BsDw",
+      "title": "전화하고 싶어… 한 통이 이렇게 어려울 줄 몰랐어",
+      "publishedAt": "2026-01-18T13:04:10Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "p42Gux5eSeM",
+      "title": "사무치는 그리움... '가을의 독백' (2026 Re-Mastering) #트로트발라드",
+      "publishedAt": "2026-01-16T15:00:51Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "MiD8lML0CVE",
+      "title": "떠나지 말란 말이 늦었다 | 눈물의 부두",
+      "publishedAt": "2026-01-12T14:44:04Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "ymspDb-qh_8",
+      "title": "\"여보, 고마워...\" 듣자마자 눈물 터진 30년 차 남편의 고백 😭",
+      "publishedAt": "2026-01-11T13:50:49Z",
+      "themes": [
+        "부부",
+        "이별"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "WDx9GVYpyuY",
+      "title": "남은 인생 당신께 다 바칠게요...\" 듣자마자 오열각 💦 #Shorts",
+      "publishedAt": "2026-01-10T16:10:20Z",
+      "themes": [
+        "부부",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "2B6-iI1rZ80",
+      "title": "남은 인생 당신께 모두 바치리다...😭 가슴 찢어지는 애절한 고백 | 금쪽같은 내 사람아 💕 [감성 트로트 발라드]",
+      "publishedAt": "2026-01-10T16:02:34Z",
+      "themes": [
+        "부부",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "z1am3HX0VZk",
+      "title": "가을의 독백 (2026 Re-Mastering) | 사무치는 그리움을 담아 새롭게 부릅니다",
+      "publishedAt": "2026-01-08T16:46:01Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "-Y9_wITtMn8",
+      "title": "가난했던 젊은 날, 묵묵히 곁을 지켜준 그녀에게",
+      "publishedAt": "2025-12-27T01:57:25Z",
+      "themes": [
+        "부부",
+        "사랑",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "L9qPryEb-N0",
+      "title": "허스키한 보이스로 부르는 애절한 트로트 발라드 '돌아가는 길'",
+      "publishedAt": "2025-12-25T10:08:49Z",
+      "themes": [
+        "부부",
+        "이별",
+        "인생"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "59Gq7dYO-Oo",
+      "title": "평생 내 편이 되어준 당신에게 바치는 노래.. 🎙️ '고마워요 당신'",
+      "publishedAt": "2025-12-25T07:38:15Z",
+      "themes": [
+        "부부"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "shBVohtW2lA",
+      "title": "세월이 흘러도 변하지 않는 사랑💝 | K.HYUN - 당신이란사람 #감성발라드",
+      "publishedAt": "2025-12-24T18:30:17Z",
+      "themes": [
+        "부부",
+        "사랑",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "LnAfdgXFTeM",
+      "title": "찬 바람 불면 더 생각나는 따뜻했던 그 품 | '불효자의 눈물' (Acoustic Ver.) | #사모곡 #인생곡 #그리움",
+      "publishedAt": "2025-12-21T09:22:57Z",
+      "themes": [
+        "부모",
+        "이별",
+        "인생"
+      ],
+      "category": "family",
+      "matched": true
+    },
+    {
+      "youtubeId": "2smkUayHwps",
+      "title": "🍂 \"추억마저 데려가지 왜 남겨두었나...\" 가슴을 후벼 파는 중년의 절규 | 웅장한 감성 대작 '가을의 독백'   #감성트로트 #중년의사랑 #이별노래",
+      "publishedAt": "2025-12-19T13:50:18Z",
+      "themes": [
+        "이별",
+        "사랑"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "nb9hhSGsuSc",
+      "title": "숨 가쁘게 달려온 당신에게〈나그네길〉 🎵오늘 밤, 마음을 쉬게 하세요 🌙 #위로 #힐링 #인생명곡 #감성트로트",
+      "publishedAt": "2025-12-06T14:50:14Z",
+      "themes": [
+        "부부",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "RzxoQQZsJuA",
+      "title": "숨 가쁘게 달려온 나에게 바치는 노래 🎵 | 감성 트로트 '나그네길' | #위로 #힐링 #인생명곡",
+      "publishedAt": "2025-12-01T15:51:35Z",
+      "themes": [
+        "인생"
+      ],
+      "category": "life",
+      "matched": true
+    },
+    {
+      "youtubeId": "tq89mL1JlPc",
+      "title": "당신만 보면 웃어요 | 20년 부부의 일상 💕 #트로트발라드 #감성트로트 #중년부부",
+      "publishedAt": "2025-11-30T09:11:32Z",
+      "themes": [
+        "부부"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "MlfiXieI2w8",
+      "title": "#감성트로트 | 노을 | 돌아보니 모두 빛나는 순간들 #아름다운저녁 #인생노래 #트로트발라드",
+      "publishedAt": "2025-11-29T05:36:59Z",
+      "themes": [
+        "인생"
+      ],
+      "category": "life",
+      "matched": true
+    },
+    {
+      "youtubeId": "hCVEcQR6m-A",
+      "title": "#감성트로트 | 보고 싶다 | 하지 못한 말들이 목에 걸려 오늘도 운다 #보고싶다 #그리움 #감동발라드",
+      "publishedAt": "2025-11-23T14:51:43Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "uHA0X8QuBSc",
+      "title": "아파도 놓을 수 없는 지독한 사랑💕 | K.HYUN - 사랑은 가시라네 #째즈트로트 #감성발라드",
+      "publishedAt": "2025-11-23T08:26:45Z",
+      "themes": [
+        "사랑"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "ukSixWKtM3c",
+      "title": "빛바랜 추억 속 영원한 사랑💕 | 그리움발라드 - 오래된 사진 #부부의노래 #감성트로트",
+      "publishedAt": "2025-11-22T18:12:33Z",
+      "themes": [
+        "부부",
+        "이별",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "oT8J_daxtgU",
+      "title": "영원히 그대만 기억할게요💕 | K.HYUN - 그대 때문이죠 #그리움의노래 #트로트명곡",
+      "publishedAt": "2025-11-16T16:10:00Z",
+      "themes": [
+        "이별",
+        "사랑"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "BwYuI67YBDc",
+      "title": "평생 당신 곁을 지켜온 한 여인의 진심💕 | K.HYUN - 그대라는 사람 (그녀의 고백) #운명적사랑 #감성발라드",
+      "publishedAt": "2025-11-04T15:27:20Z",
+      "themes": [
+        "부부",
+        "인연",
+        "사랑"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "TCDKxxaT-ck",
+      "title": "세월이 흘러도 변치 않는 사랑💕 | K.HYUN - 인연이야 #부부의노래 #감성트로트",
+      "publishedAt": "2025-10-27T22:30:12Z",
+      "themes": [
+        "부부",
+        "인연",
+        "사랑",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "lZuxmxZVX5s",
+      "title": "그대라는 사람 1시간 반복재생 | K.HYUN 감성발라드 연속듣기 | 운명적 사랑 노래",
+      "publishedAt": "2025-10-27T13:11:45Z",
+      "themes": [
+        "인연",
+        "사랑"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "wcYvFfxuL-4",
+      "title": "다시 태어나도 그대만 찾을 거야💕 | K.HYUN - 그대라는 사람 #운명적사랑 #감성발라드",
+      "publishedAt": "2025-10-26T01:51:24Z",
+      "themes": [
+        "인연",
+        "사랑",
+        "희망"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "qYugL0JLrhw",
+      "title": "세월이 흘러도 변함없는 약속💝 | K.HYUN - 우산 속의 약속 #영원한사랑 #트로트명곡",
+      "publishedAt": "2025-10-25T02:52:25Z",
+      "themes": [
+        "사랑",
+        "인생"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "O3yoDVaQqOU",
+      "title": "아침에 듣기 좋은 트로트 | 당신만 보면 웃어요 1시간 연속재생 #아침음악 #감성트로트 #기분좋아지는노래",
+      "publishedAt": "2025-10-15T15:40:06Z",
+      "themes": [
+        "부부"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "_l88JmsLkL0",
+      "title": "#부두에핀꽃 #답가 #여심 떠나지 마요, 아직 사랑해요🌊 | 부두에 핀 꽃 (그녀의 답장) - K.HYUN",
+      "publishedAt": "2025-10-12T13:29:41Z",
+      "themes": [
+        "이별",
+        "사랑"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "uWRlwPRLfis",
+      "title": "#눈물의부두 #감성트로트 #이별노래 석양 물든 부두에서 혼자 무너지다🌊 | 눈물의 부두 (감성 Ver.) - K.HYUN",
+      "publishedAt": "2025-10-12T09:36:22Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "mP98-oHwAfc",
+      "title": "#눈물의부두 #이별노래 #감동트로트 노을진 항구에서 홀로 외치다🌅 | 눈물의 부두 - K.HYUN",
+      "publishedAt": "2025-10-11T16:05:41Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "2ERrqsBCc40",
+      "title": "#부부 #감동노래 평생을 함께한 당신에게💕 | 고맙소, 당신 - K.HYUN",
+      "publishedAt": "2025-10-08T17:25:17Z",
+      "themes": [
+        "부부"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "JBr7H598feU",
+      "title": "세월 끝에 전하는 마지막 사랑의 고백 | 30분 연속재생 |#내마지막고백 #감성발라드 #국내발라드추천",
+      "publishedAt": "2025-10-04T12:09:21Z",
+      "themes": [
+        "사랑",
+        "인생"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "SBUpX0Zf6Ms",
+      "title": "#인연 #감동노래 흐르는물처럼 모든 만남과 이별의 의미💧 | 인연은 흐르는 물처럼 - K.HYUN",
+      "publishedAt": "2025-10-02T14:02:06Z",
+      "themes": [
+        "이별",
+        "인연"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "iog2sz6OflY",
+      "title": "시간이 흘러도 변함없는 사랑💖 | K.HYUN - 고마워요 나의 사랑  #감동노래  #고마워요 나의사랑",
+      "publishedAt": "2025-09-30T15:24:44Z",
+      "themes": [
+        "사랑"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "DGRgeT35cfY",
+      "title": "#감성트로트  | 당신만 보면 웃어요 | 사랑하는 사람을 바라볼 때 저절로 피어나는 미소 #당신만보면웃어요 #사랑노래 #트로트발라드",
+      "publishedAt": "2025-09-24T14:03:57Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "ja00maTDaPA",
+      "title": "당신이라서 고마워요 | 평생 곁을 지켜준 사랑에 바치는 노래 (감성 트로트)#당신이라서고마워요 #고마움 #부부사랑 #트로트발라드",
+      "publishedAt": "2025-09-23T16:08:25Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "B9HhTuT4i7o",
+      "title": "세월이 흘러도 변하지 않는 사랑💝 | K.HYUN - 당신이란사람 (감성발라드 30분 연속듣기)",
+      "publishedAt": "2025-09-22T14:07:42Z",
+      "themes": [
+        "부부",
+        "사랑",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "_T3ONaRpTdI",
+      "title": "돌아가는 길 | 세월 속 잃어버린 사랑을 그리는 애절한 노래 (K.HYUN 감성 트로트) #돌아가는길 #그리움 #트로트명곡",
+      "publishedAt": "2025-09-09T15:21:13Z",
+      "themes": [
+        "이별",
+        "사랑",
+        "인생"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "9mqspxn-nFs",
+      "title": "고마워요 당신 | 세월을 함께 걸어온 사랑의 노래 (K.HYUN 감성 발라드) #트로트발라드 #감동발라드 #고마워요당신",
+      "publishedAt": "2025-09-08T17:19:12Z",
+      "themes": [
+        "부부",
+        "사랑",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "sA9TQn-kroA",
+      "title": "세월 끝에 전하는 마지막 사랑의 고백 | K.HYUN - #내마지막고백 #감성발라드",
+      "publishedAt": "2025-09-04T15:07:59Z",
+      "themes": [
+        "사랑",
+        "인생"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "eOso7tUWwB0",
+      "title": "K.hyun - 당신이란사람 (Official MV) | 전 국민이 공감하는 부부 사랑 이야기 #감동 #부부 #사랑 #당신이란사람",
+      "publishedAt": "2025-08-02T16:24:40Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "3q3fPPt9T1E",
+      "title": "\"소중한 사람\" -  평생 함께한 그대에게  #눈물주의",
+      "publishedAt": "2025-07-27T15:32:46Z",
+      "themes": [
+        "부부",
+        "이별",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "UP-gCubRFvs",
+      "title": "세월이 흘러도 변하지 않는 사랑에 대하여 | K.HYUN - #당신이란사람 #감성발라드",
+      "publishedAt": "2025-07-26T15:52:47Z",
+      "themes": [
+        "부부",
+        "사랑",
+        "인생"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "DCybuF82P_M",
+      "title": "\"Part 2 | 더 깊어진 사랑고백... 2절이 진짜다 🥹\"#당신이란사람",
+      "publishedAt": "2025-07-23T16:01:52Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "d33uei57z3k",
+      "title": "30년 함께한 부부의 진짜 사랑 이야기 🥺 #당신이란사람",
+      "publishedAt": "2025-07-22T16:10:50Z",
+      "themes": [
+        "부부",
+        "사랑"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "mWQazkcEjhI",
+      "title": "K.HYUN '전화하고싶어' | 이별노래 #kpop",
+      "publishedAt": "2025-07-20T14:24:27Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "lDjXvngztQE",
+      "title": "그대가 떠난 자리 - K.HYUN 🎤💔 #KPOP #발라드 #감성",
+      "publishedAt": "2025-07-19T14:59:30Z",
+      "themes": [
+        "이별",
+        "사랑"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "SZaqnbOGV6s",
+      "title": "K.HYUN - 아들에게 보내는 편지 (랩/발라드) | 아버지의 진심을 담은 노래",
+      "publishedAt": "2025-07-16T13:04:02Z",
+      "themes": [
+        "부모"
+      ],
+      "category": "family",
+      "matched": true
+    },
+    {
+      "youtubeId": "dLu6MMqV4Vk",
+      "title": "\"애절한 발라드 | K.HYUN - 용기가 안 나 🎵 (Official MV) | 전화하고 싶은 마음\"",
+      "publishedAt": "2025-07-16T08:45:18Z",
+      "themes": [
+        "희망"
+      ],
+      "category": "hope",
+      "matched": true
+    },
+    {
+      "youtubeId": "zvIgsHjpgiM",
+      "title": "감성 발라드 | [MV] K.HYUN - 돌아와 줘 내게로 (Official Music Video)",
+      "publishedAt": "2025-07-16T06:02:51Z",
+      "themes": [
+        "이별",
+        "사랑"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "IaQyfD4uAuE",
+      "title": "K.HYUN - 아버지니까 | 거친 목소리로 전하는 아버지의 사랑",
+      "publishedAt": "2025-07-15T16:03:47Z",
+      "themes": [
+        "부모",
+        "사랑"
+      ],
+      "category": "family",
+      "matched": true
+    },
+    {
+      "youtubeId": "jcLWPIb8S80",
+      "title": "허스키보이스🔥K.HYUN - 넘어지고 또 일어나라 #록음악",
+      "publishedAt": "2025-07-09T12:55:10Z",
+      "themes": [
+        "희망"
+      ],
+      "category": "hope",
+      "matched": true
+    },
+    {
+      "youtubeId": "Byqk_9cear8",
+      "title": "[MV] K.HYUN -  지나간다  | 힘들어도 포기하지마세요 |",
+      "publishedAt": "2025-07-08T15:32:33Z",
+      "themes": [
+        "부부"
+      ],
+      "category": "relationship",
+      "matched": true
+    },
+    {
+      "youtubeId": "w84B6v2qK-0",
+      "title": "허스키보이스가 부르는 그리움 발라드  [MV] K.HYUN - 알고있나요 #감성발라드 #kpop",
+      "publishedAt": "2025-07-07T15:32:12Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "0EWgZiPSpS8",
+      "title": "[MV] K.HYUN - 알고 있나요 (Do You Know) | 그리움 발라드 | 이별노래",
+      "publishedAt": "2025-07-07T13:06:46Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "QFq-MLor-Po",
+      "title": "[MV] K.HYUN-Why did you leave\" 이 노래 들으면 눈물 남 ㅠㅠ",
+      "publishedAt": "2025-07-06T14:39:02Z",
+      "themes": [
+        "이별"
+      ],
+      "category": "longing",
+      "matched": true
+    },
+    {
+      "youtubeId": "8pwoNZpVHZA",
+      "title": "🎵 팥빙수 송 - 여름 쿨링 랩 뮤직비디오",
+      "publishedAt": "2025-07-06T07:08:17Z",
+      "themes": [],
+      "category": "",
+      "matched": false
+    },
+    {
+      "youtubeId": "LEwYSr5lK3s",
+      "title": "매운 거 좋아한다면서 왜 울고 있어? 🌶️💧",
+      "publishedAt": "2025-07-06T04:12:10Z",
+      "themes": [],
+      "category": "",
+      "matched": false
+    },
+    {
+      "youtubeId": "mcLvtfZL2Ss",
+      "title": "엘리베이터에서 상사랑 마주쳤을 때  (공감 100%)",
+      "publishedAt": "2025-07-05T17:04:22Z",
+      "themes": [
+        "사랑"
+      ],
+      "category": "love",
+      "matched": true
+    },
+    {
+      "youtubeId": "AKdnkkTY-fI",
+      "title": "치킨 기다리는 30분이 1시간 같을 때 듣는 노래 🍗",
+      "publishedAt": "2025-07-05T14:55:14Z",
+      "themes": [],
+      "category": "",
+      "matched": false
+    },
+    {
+      "youtubeId": "7j9Yten1tB8",
+      "title": "Lo-Fi Feline님의 실시간 스트림",
+      "publishedAt": "2025-02-19T17:14:13Z",
+      "themes": [],
+      "category": "",
+      "matched": false
     }
   ]
 }

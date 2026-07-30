@@ -120,4 +120,30 @@ body {
   .divider-soft {
     @apply border-0 border-t border-dashed border-line;
   }
+
+  /* ── Carousel / horizontal-scroll helpers ── */
+  .carousel-arrow {
+    @apply absolute top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center
+      justify-center rounded-full border border-line bg-paper/85 font-sans text-2xl
+      leading-none text-brand shadow-card backdrop-blur transition duration-250
+      hover:bg-paper sm:flex;
+  }
+  .row-arrow {
+    @apply absolute top-1/2 z-10 h-9 w-9 -translate-y-1/2 items-center justify-center
+      rounded-full border border-line bg-paper/90 font-sans text-xl leading-none
+      text-brand shadow-card backdrop-blur transition duration-250 hover:bg-paper;
+  }
+  .section-head {
+    @apply mb-4 flex items-end justify-between gap-3;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -117,6 +117,14 @@ export default function StoryPage({ params }: { params: { id: string } }) {
           </div>
         )}
 
+        {/* Song player at the top — press play, then read as you scroll.
+            Static iframe, so scrolling never interrupts playback. */}
+        {story.youtubeId && (
+          <div className="mt-6">
+            <YouTubeEmbed id={story.youtubeId} title={story.title} />
+          </div>
+        )}
+
         {/* ── AD ① : before body ── */}
         <AdSlot id="①" />
 
@@ -160,11 +168,6 @@ export default function StoryPage({ params }: { params: { id: string } }) {
               {story.todayAction}
             </p>
           </section>
-        )}
-
-        {/* Category-matching song (only when assigned; no autoplay) */}
-        {story.youtubeId && (
-          <YouTubeEmbed id={story.youtubeId} title={story.title} />
         )}
 
         {/* Prev / next */}

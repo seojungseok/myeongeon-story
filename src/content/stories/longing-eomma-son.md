@@ -18,7 +18,7 @@ relatedQuotes:
     author: "작자 미상"
   - text: "세상에서 가장 아름다운 단어는 어머니다."
     author: "칼릴 지브란"
-photoKeyword: old woman hands warm light
+photoKeyword: elderly wrinkled hands soft sunlight
 viewWeight: 72
 coupangUrl: ""
 createdAt: "2026-07-30"

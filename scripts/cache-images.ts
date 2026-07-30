@@ -1,16 +1,27 @@
 /**
  * cache-images.ts — runs BEFORE the build (see package.json "prebuild").
  *
- * For every story it reads the `photoKeyword`, searches Pexels ONCE, downloads
- * the best photo, and saves it to public/images/pexels/<slug>.jpg. At runtime
- * the site serves only these local files — zero image API calls in production.
+ * For every story it reads `photoKeyword`, searches Pexels, and downloads ONE
+ * photo to public/images/pexels/<story-id>.jpg. At runtime the site serves only
+ * these local files — zero image API calls in production.
  *
- * - Skips images that already exist (so re-runs are cheap and incremental).
- * - Respects Pexels rate limits with a small delay between requests.
- * - If PEXELS_API_KEY is missing, it logs a warning and exits 0 (build still
- *   works; stories fall back to a gradient placeholder).
+ * Distinct images guaranteed:
+ *   - Each story gets its OWN file, keyed by story id (not keyword), so two
+ *     stories that share a keyword never overwrite the same file.
+ *   - We fetch several candidates per keyword and pick the first photo whose
+ *     Pexels id hasn't been used by another story in this run — so even similar
+ *     keywords yield different pictures. A per-story offset (hash of the id)
+ *     makes the choice stable across re-runs.
  *
- * Usage:  npm run cache:images        (or automatically via prebuild)
+ * Flags:
+ *   --force   re-download even if the file already exists (use after changing
+ *             keywords to refresh images).
+ *
+ * If PEXELS_API_KEY is missing it logs a warning and exits 0 (build still works;
+ * stories fall back to a gradient placeholder).
+ *
+ * Usage:  npm run cache:images            (or automatically via prebuild)
+ *         npm run cache:images -- --force
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -19,10 +30,11 @@ import matter from "gray-matter";
 const ROOT = process.cwd();
 const STORIES_DIR = path.join(ROOT, "src", "content", "stories");
 const OUT_DIR = path.join(ROOT, "public", "images", "pexels");
-const PEXELS_KEY = process.env.PEXELS_API_KEY;
 
-// Load .env.local manually (scripts run outside Next's env loading).
 loadEnvLocal();
+const PEXELS_KEY = process.env.PEXELS_API_KEY;
+const FORCE = process.argv.includes("--force");
+const PER_PAGE = 15; // candidate pool size per keyword
 
 type StoryLite = { id: string; photoKeyword: string };
 
@@ -37,12 +49,20 @@ function loadEnvLocal() {
   }
 }
 
-function imageSlug(s: StoryLite): string {
-  const base = (s.photoKeyword || s.id || "story")
+/** File base = story id (matches src/lib/content.ts imageSlug). */
+function idSlug(s: StoryLite): string {
+  const base = (s.id || s.photoKeyword || "story")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return base || "story";
+}
+
+/** Small stable hash → per-story starting offset into the candidate list. */
+function hash(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
 }
 
 function readStories(): StoryLite[] {
@@ -75,19 +95,22 @@ function readStories(): StoryLite[] {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function fetchPhotoUrl(keyword: string): Promise<string | null> {
-  const q = encodeURIComponent(keyword || "calm nature");
-  const url = `https://api.pexels.com/v1/search?query=${q}&per_page=1&orientation=landscape`;
+type Candidate = { id: number; url: string };
+
+async function fetchCandidates(keyword: string): Promise<Candidate[]> {
+  const q = encodeURIComponent(keyword || "calm quiet nature");
+  const url = `https://api.pexels.com/v1/search?query=${q}&per_page=${PER_PAGE}&orientation=landscape`;
   const res = await fetch(url, { headers: { Authorization: PEXELS_KEY! } });
   if (!res.ok) {
     console.warn(`  ! Pexels ${res.status} for "${keyword}"`);
-    return null;
+    return [];
   }
   const data = (await res.json()) as {
-    photos?: { src?: { large2x?: string; large?: string } }[];
+    photos?: { id: number; src?: { large2x?: string; large?: string } }[];
   };
-  const photo = data.photos?.[0];
-  return photo?.src?.large2x || photo?.src?.large || null;
+  return (data.photos ?? [])
+    .map((p) => ({ id: p.id, url: p.src?.large2x || p.src?.large || "" }))
+    .filter((c) => c.url);
 }
 
 async function download(url: string, dest: string): Promise<void> {
@@ -100,7 +123,7 @@ async function download(url: string, dest: string): Promise<void> {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const stories = readStories();
-  console.log(`[cache-images] ${stories.length} stories found.`);
+  console.log(`[cache-images] ${stories.length} stories found.${FORCE ? " (force)" : ""}`);
 
   if (!PEXELS_KEY) {
     console.warn(
@@ -110,37 +133,51 @@ async function main() {
     return;
   }
 
-  // De-dupe by target filename so shared keywords download once.
-  const targets = new Map<string, string>(); // slug -> keyword
-  for (const s of stories) targets.set(imageSlug(s), s.photoKeyword);
-
+  const usedPhotoIds = new Set<number>(); // ensures no two stories share a photo
   let downloaded = 0;
   let skipped = 0;
-  for (const [slug, keyword] of targets) {
+
+  for (const s of stories) {
+    const slug = idSlug(s);
     const dest = path.join(OUT_DIR, `${slug}.jpg`);
-    if (fs.existsSync(dest)) {
+    if (!FORCE && fs.existsSync(dest)) {
       skipped++;
       continue;
     }
+
     try {
-      const photoUrl = await fetchPhotoUrl(keyword);
-      if (!photoUrl) continue;
-      await download(photoUrl, dest);
+      const candidates = await fetchCandidates(s.photoKeyword);
+      if (candidates.length === 0) continue;
+
+      // Start at a per-story offset, then take the first not-yet-used photo.
+      const start = hash(s.id) % candidates.length;
+      let chosen: Candidate | undefined;
+      for (let i = 0; i < candidates.length; i++) {
+        const c = candidates[(start + i) % candidates.length];
+        if (!usedPhotoIds.has(c.id)) {
+          chosen = c;
+          break;
+        }
+      }
+      // If every candidate is already used (small pools), fall back to offset.
+      chosen = chosen ?? candidates[start];
+
+      usedPhotoIds.add(chosen.id);
+      await download(chosen.url, dest);
       downloaded++;
-      console.log(`  ✓ ${slug}.jpg  ← "${keyword}"`);
-      await sleep(400); // stay well under Pexels rate limits
+      console.log(`  ✓ ${slug}.jpg  ← "${s.photoKeyword}"  (photo ${chosen.id})`);
+      await sleep(350); // stay under Pexels rate limits
     } catch (e) {
       console.warn(`  ! ${slug}: ${(e as Error).message}`);
     }
   }
 
   console.log(
-    `[cache-images] done. downloaded=${downloaded}, skipped(existing)=${skipped}`,
+    `[cache-images] done. downloaded=${downloaded}, skipped(existing)=${skipped}, unique photos=${usedPhotoIds.size}`,
   );
 }
 
 main().catch((e) => {
   console.error("[cache-images] fatal:", e);
-  // Don't fail the build over images.
-  process.exit(0);
+  process.exit(0); // never fail the build over images
 });

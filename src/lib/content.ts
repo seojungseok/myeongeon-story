@@ -58,9 +58,12 @@ function autoDescription(story: string, fallback: string): string {
   return flat.length > 155 ? `${flat.slice(0, 152)}…` : flat;
 }
 
-/** Slugify the photoKeyword into a stable image filename base. */
+/**
+ * Image filename base — keyed by the story ID (not the keyword) so two stories
+ * that happen to share a photoKeyword never map to the same cached file.
+ */
 export function imageSlug(story: Pick<Story, "id" | "photoKeyword">): string {
-  const base = (story.photoKeyword || story.id || "story")
+  const base = (story.id || story.photoKeyword || "story")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");

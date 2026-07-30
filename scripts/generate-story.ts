@@ -64,7 +64,7 @@ function quoteCore(quote: string): string {
 
 type Job = { quote: string; category: string; author: string };
 type Fields = {
-  category: string; title: string; quoteAuthor: string; story: string;
+  category: string; slug: string; title: string; quoteAuthor: string; story: string;
   lesson: string; todayAction: string; tags: string[]; photoKeyword: string; description: string;
 };
 
@@ -141,6 +141,7 @@ async function generate(job: Job): Promise<Fields> {
   const j = extractJson(raw);
   return {
     category: String(j.category ?? "").trim(),
+    slug: String(j.slug ?? "").trim(),
     title: String(j.title ?? "").trim(),
     quoteAuthor: String(j.quoteAuthor ?? job.author ?? "작자 미상").trim(),
     story: String(j.story ?? "").trim(),
@@ -174,9 +175,11 @@ async function callGemini(prompt: string): Promise<string> {
 function writeStory(f: Fields, job: Job): string {
   const category = normalizeCategory(job.category || f.category || "life");
   const author = job.author || f.quoteAuthor || "작자 미상";
-  // Ensure the title leads with the author (validation already checked presence).
   const title = f.title;
-  const id = makeId(title || job.quote);
+  // URL id MUST be ASCII — Next.js static routes don't match Korean path params
+  // reliably (Korean-id pages 404). Use the model's English slug; fall back to a
+  // stable hash of the quote.
+  const id = asciiId(f.slug) || `story-${hashHex(job.quote)}`;
   const story = {
     id, category, tags: f.tags, title,
     quote: job.quote,                 // always the exact input quote
@@ -230,9 +233,15 @@ function extractJson(text: string): Record<string, any> {
   throw new Error("No balanced JSON in model output.");
 }
 
-function makeId(seed: string): string {
-  const base = seed.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
-  return base || `story-${Date.now()}`;
+/** ASCII-only slug for the URL id. Returns "" if nothing usable remains. */
+function asciiId(seed: string): string {
+  return (seed || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+}
+/** Short stable hex hash — fallback id when no ASCII slug is available. */
+function hashHex(s: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(16);
 }
 
 function parseArgs(argv: string[]): Record<string, string | boolean> {

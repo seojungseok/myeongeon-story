@@ -10,10 +10,14 @@
 **오늘(2026-07-30) 어디까지 했나**
 - 사이트 전체 구축 → **Vercel 배포 완료** (https://myeongeon.kr), Google 서치콘솔 인증 완료
 - 홈을 mwohaji 스타일로 만들었다가 → **간결하게 최적화**: 카테고리 바(끝 화살표) · **추천 랜덤 배너** · **오늘의 명언 1개** · **최신글 슬라이더 + 더보기(`/stories`)**
-- 상세 페이지 **유튜브 노래 임베드**(상단, 무자동재생) + K.HYUN 곡 3편 배정, 공유 카드·푸터 문의 정리
 - 이미지 중복 회피(이야기 id별 파일 + Pexels dedup) 적용
 - `PROJECT_STATUS.md` / `CLAUDE.md` 문서화
-- **모든 변경 `main`에 push·배포 반영 확인됨** (working tree 깨끗)
+- **[말투·주제·노래·SEO 5대 개선]** 완료:
+  1. **말투 전면 수정**: `prompt-template.txt`의 톤 규칙을 담백한 구어체로 재작성(번역체·설교조 표현 전면 금지, `~한 채`/`~하리라` 등), 기존 3편의 교훈·실천·제목을 자연스러운 구어체로 다듬음. 실천 문구는 짧고 구체적으로.
+  2. **콘텐츠 방향 전환**: `scripts/quotes.txt`를 유명 철학자·현자(니체·쇼펜하우어·노자·공자 등) + 심리/인간관계 실용 주제로 재구성.
+  3. **유튜브 노래 자동 연동**: 노래를 글에 고정하지 않고 **빌드 시 카테고리로 매칭**(`src/lib/songs.ts`). `npm run fetch:youtube`만 다시 돌리면 기존 글까지 자동 갱신. 분류기 키워드 보강(부부·아내·남편→인연 등), 미매칭 곡은 사랑으로.
+  4. **SEO**: 명언 페이지에 **Quotation JSON-LD** 추가(기존 Article/Breadcrumb/WebSite/Organization 유지), 제목을 인물/키워드 앞세움.
+  5. 로컬 빌드·타입체크·브라우저 렌더 확인 후 커밋·push.
 
 **지금 멈춘 지점 / 미해결 (다음에 이어서)**
 - 🔴 **실제 이야기가 3편뿐** → 홈 배너·최신글이 같은 글로 반복돼 보임. **콘텐츠 대량 생성이 최우선 다음 작업.**
@@ -75,7 +79,7 @@ npm run gen:story -- --file scripts/quotes.txt
 
 **부가 기능**
 - 즐겨찾기(localStorage), 진행률 바, 이전/다음, 랜덤 추천, 인기글(viewWeight)
-- 유튜브 노래 자동 매칭: `fetch-youtube.ts`(API 키 없으면 **공개 RSS 폴백**) → `data/youtube-songs.json` → 생성 시 카테고리별 `youtubeId` 자동 배정
+- 유튜브 노래 자동 매칭: `fetch-youtube.ts`(API 키 없으면 **공개 RSS 폴백**) → `data/youtube-songs.json`. **노래는 글에 고정하지 않고 `src/lib/songs.ts`가 빌드 시 카테고리로 매칭**(카테고리별 폴백 체인 + 전역 폴백). `fetch:youtube` 재실행만으로 모든 글의 노래가 자동 갱신됨(글별 `youtubeId`에 값을 넣으면 그 곡으로 고정 override).
 - 이미지 중복 회피: 이야기 id별 파일명 + Pexels 후보 중 전역 dedup 선택
 
 **디자인**: 미색 배경·명조체·세피아 감성 톤, 모바일 우선 반응형, 부드러운 캐러셀
@@ -86,7 +90,7 @@ npm run gen:story -- --file scripts/quotes.txt
 
 ## 3. 미완료 / TODO
 
-- [ ] **콘텐츠가 3편뿐** (`courage-mandela`, `effort-cheonrigil`, `longing-eomma-son`) → 홈이 반복돼 보임. **대량 생성 필요** (`npm run gen:story`)
+- [ ] **콘텐츠가 3편뿐** (`courage-mandela`, `effort-cheonrigil`, `longing-eomma-son`) → 홈이 반복돼 보임. **대량 생성이 여전히 최우선.** `scripts/quotes.txt`는 철학자·인간관계 주제로 이미 재구성돼 있으니 `GEMINI_API_KEY`만 넣고 `npm run gen:story -- --file scripts/quotes.txt` → **생성물은 반드시 `prompt-template.txt` 말투 규칙대로 사람이 검토·수정**
 - [ ] 로컬 환경변수 미설정: `GEMINI_API_KEY`, `YOUTUBE_API_KEY`, `PEXELS_API_KEY` 비어 있음 (Vercel엔 `PEXELS_API_KEY`, `NEXT_PUBLIC_SITE_URL` 설정됨)
 - [ ] `data/youtube-songs.json`은 **RSS 최신 15편만** → API 키 넣고 전체 수집 권장
 - [ ] `coupangUrl` 전부 비어 있음 → 상품 링크 넣어야 배너 노출
@@ -183,9 +187,9 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 - **마지막 업데이트**: 2026-07-30
 - **현재 브랜치**: `main` (배포와 동기화됨)
 - **최근 커밋** (최신 5개):
+  - `dff7eb0` Update PROJECT_STATUS.md: fix drive paths (F:→D:), refresh env/commit notes
   - `3521089` Flesh out PROJECT_STATUS.md for cross-machine resume (집 이어작업용 현황 보강)
   - `2afcd4f` Add PROJECT_STATUS.md and CLAUDE.md (현황 문서 + 자동 갱신 규칙)
   - `d7812d6` Optimize home: lean layout per feedback (추천 랜덤·오늘의 명언 1개·최신글+더보기·/stories)
   - `f6d3091` Redesign home in mwohaji style (carousels + horizontal rows)
-  - `8170298` Move song player to top, clean embed, improve image matching
-- **이 커밋에서 추가로 손본 것**: 드라이브 표기 `F:`→ 실제 `D:\명언` 반영(경로 이슈 설명 일반화), 0번 `.env.local` 실제 설정 상태 명시.
+- **이번 작업(말투·주제·노래·SEO 5대 개선)에서 바뀐 파일**: `scripts/prompt-template.txt`, `scripts/quotes.txt`, `scripts/generate-story.ts`, `scripts/fetch-youtube.ts`, `src/lib/songs.ts`(신규), `src/lib/seo.ts`, `src/app/story/[id]/page.tsx`, 기존 이야기 3편, `data/youtube-songs.json`.

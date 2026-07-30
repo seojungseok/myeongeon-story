@@ -103,6 +103,23 @@ export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
   };
 }
 
+/**
+ * Quotation structured data — fits a quote-centric site and can earn richer
+ * treatment for the famous-figure quotes we now lead with. `creator` is only
+ * set when we actually know the author (not 작자 미상).
+ */
+export function quotationJsonLd(story: Story) {
+  const known = story.quoteAuthor && story.quoteAuthor !== "작자 미상";
+  return {
+    "@context": "https://schema.org",
+    "@type": "Quotation",
+    text: story.quote,
+    ...(known ? { creator: { "@type": "Person", name: story.quoteAuthor } } : {}),
+    isPartOf: absUrl(`/story/${story.id}`),
+    inLanguage: "ko",
+  };
+}
+
 export function articleJsonLd(story: Story) {
   return {
     "@context": "https://schema.org",

@@ -2,11 +2,11 @@
 id: longing-eomma-son
 category: longing
 tags: ["그리움", "어머니", "가족", "세월", "위로"]
-title: "그리움에 관한 명언 이야기 - 어머니의 손"
+title: "그리움을 위로하는 글 - 어머니의 거친 손"
 quote: "가장 사랑하는 사람은 떠난 뒤에도 마음속에서 함께 산다."
 quoteAuthor: "작자 미상"
-lesson: "그리움은 사랑이 남긴 발자국입니다. 지우려 애쓰기보다, 그 발자국을 따라 걸으며 오늘의 나를 아껴주세요. 그것이 떠난 이가 가장 바라던 일입니다."
-todayAction: "보고 싶은 사람에게, 혹은 그 사람 사진 앞에서 마음속 안부를 건네보세요."
+lesson: "그리움은 사랑했던 사람이 남기고 간 흔적이에요. 억지로 지우려 애쓰지 않아도 괜찮아요. 그 마음을 안고 오늘의 나를 조금 더 아껴 주면, 그게 떠난 분이 가장 바라던 일일 거예요."
+todayAction: "오늘 보고 싶은 사람에게 안부 문자 한 통 보내보세요."
 relatedQuotes:
   - text: "사랑했던 기억은 시간이 지나도 향기로 남는다."
     author: "작자 미상"
@@ -22,7 +22,7 @@ photoKeyword: elderly wrinkled hands soft sunlight
 viewWeight: 72
 coupangUrl: ""
 createdAt: "2026-07-30"
-youtubeId: "3OGsmw3Iq-I"
+youtubeId: ""
 ---
 
 명절이 되면 나는 늘 어머니의 손을 떠올린다. 마디가 굵고, 손등이 거북이 등처럼 갈라진 손이었다. 어릴 적 나는 그 손이 부끄러웠다. 친구 어머니들의 곱고 흰 손과 달리, 우리 어머니의 손은 늘 물일과 밭일에 절어 있었다.

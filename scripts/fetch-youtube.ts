@@ -26,11 +26,11 @@ const API_KEY = process.env.YOUTUBE_API_KEY;
 // ── Category classifier ──────────────────────────────────────────────────────
 // Ordered most-specific → most-general. On a score tie, the earlier entry wins.
 const CATEGORIES: { slug: string; label: string; keywords: string[] }[] = [
-  { slug: "family", label: "가족", keywords: ["가족", "엄마", "어머니", "어무이", "아버지", "아빠", "부모", "어버이", "자식", "아들", "딸", "형제", "남매", "고향", "효"] },
-  { slug: "love", label: "사랑", keywords: ["사랑", "연인", "그대", "당신", "임", "첫사랑", "짝사랑", "연애", "애인", "그리운 임"] },
-  { slug: "longing", label: "그리움", keywords: ["그리움", "그리워", "그립", "보고싶", "보고 싶", "추억", "이별", "떠난", "떠나", "잊지", "못 잊", "옛사랑", "눈물"] },
+  { slug: "family", label: "가족", keywords: ["가족", "엄마", "어머니", "어머님", "어무이", "아버지", "아버님", "아빠", "부모", "부모님", "어버이", "자식", "자녀", "아들", "딸", "형제", "남매", "고향", "효", "부모님의 손"] },
+  { slug: "relationship", label: "인연", keywords: ["인연", "만남", "옷깃", "연분", "스침", "운명처럼", "부부", "아내", "남편", "여보", "임자", "반쪽", "백년", "해로", "동반자", "인생동반", "평생 함께", "곁에"] },
+  { slug: "love", label: "사랑", keywords: ["사랑", "연인", "그대", "당신", "임", "첫사랑", "짝사랑", "연애", "애인", "그리운 임", "설레", "선물", "두근"] },
+  { slug: "longing", label: "그리움", keywords: ["그리움", "그리워", "그립", "보고싶", "보고 싶", "추억", "이별", "떠난", "떠나", "잊지", "못 잊", "옛사랑", "눈물", "떠나간", "가슴 아픈", "아픈 사람"] },
   { slug: "friend", label: "친구", keywords: ["친구", "우정", "벗", "동무", "동창", "옛 친구"] },
-  { slug: "relationship", label: "인연", keywords: ["인연", "만남", "옷깃", "연분", "스침", "운명처럼"] },
   { slug: "comfort", label: "위로", keywords: ["위로", "괜찮아", "힘내", "토닥", "울지마", "울지 마", "지친", "아프지", "쉬어", "괜찮다"] },
   { slug: "courage", label: "용기", keywords: ["용기", "이겨", "일어나", "일어서", "버텨", "견뎌", "강해", "굳세", "당당"] },
   { slug: "challenge", label: "도전", keywords: ["도전", "시작", "새로운", "부딪", "뛰어", "달려"] },
@@ -45,7 +45,13 @@ const CATEGORIES: { slug: string; label: string; keywords: string[] }[] = [
 
 type Classification = { slug: string; label: string; matched: boolean };
 
-let fallbackCounter = 0;
+// Unmatched songs default here. Most K.HYUN tracks are mid-life love/emotion
+// ballads, so "love" is the safest bucket — and it keeps themed categories
+// clean (only keyword-matched songs land in them). The site's song resolver
+// (src/lib/songs.ts) fills any empty category from a fallback chain, so we no
+// longer need to scatter unmatched songs across categories.
+const DEFAULT_CATEGORY = { slug: "love", label: "사랑" };
+
 function classify(title: string): Classification {
   const t = title.replace(/\s+/g, " ");
   let best = { slug: "", label: "", score: 0 };
@@ -55,9 +61,7 @@ function classify(title: string): Classification {
     if (score > best.score) best = { slug: c.slug, label: c.label, score };
   }
   if (best.score > 0) return { slug: best.slug, label: best.label, matched: true };
-  // No keyword hit → distribute round-robin so every category gets some songs.
-  const c = CATEGORIES[fallbackCounter++ % CATEGORIES.length];
-  return { slug: c.slug, label: c.label, matched: false };
+  return { slug: DEFAULT_CATEGORY.slug, label: DEFAULT_CATEGORY.label, matched: false };
 }
 
 // ── YouTube API ──────────────────────────────────────────────────────────────

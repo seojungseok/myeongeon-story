@@ -1,15 +1,15 @@
 {
   "channelId": "UCGNCbGigMXMlagvb8t6CbFA",
   "source": "rss",
-  "fetchedAt": "2026-07-30T08:56:11.504Z",
+  "fetchedAt": "2026-07-30T11:31:51.324Z",
   "totalVideos": 15,
   "matchedCount": 14,
   "counts": {
-    "family": 2,
+    "family": 1,
+    "relationship": 1,
     "love": 9,
     "longing": 3,
     "friend": 0,
-    "relationship": 0,
     "comfort": 0,
     "courage": 0,
     "challenge": 0,
@@ -27,11 +27,13 @@
         "youtubeId": "3OGsmw3Iq-I",
         "title": "부모님의 손 | 듣는 순간 부모님이 떠오르는 눈물의 트로트 발라드",
         "publishedAt": "2026-05-29T17:53:19+00:00"
-      },
+      }
+    ],
+    "relationship": [
       {
-        "youtubeId": "7QV2JSvGgIo",
-        "title": "총맞은 것처럼 (2026 Rearranged Ver.) | K.HYUN",
-        "publishedAt": "2026-03-14T14:08:38+00:00"
+        "youtubeId": "ow0FfNRRJdM",
+        "title": "K.hyun(케이현) - 사랑이 내게 왔네 🌸 | 운명처럼 다가온 감성 트로트 신곡",
+        "publishedAt": "2026-04-12T15:42:27+00:00"
       }
     ],
     "love": [
@@ -76,9 +78,9 @@
         "publishedAt": "2026-05-24T17:15:25+00:00"
       },
       {
-        "youtubeId": "ow0FfNRRJdM",
-        "title": "K.hyun(케이현) - 사랑이 내게 왔네 🌸 | 운명처럼 다가온 감성 트로트 신곡",
-        "publishedAt": "2026-04-12T15:42:27+00:00"
+        "youtubeId": "7QV2JSvGgIo",
+        "title": "총맞은 것처럼 (2026 Rearranged Ver.) | K.HYUN",
+        "publishedAt": "2026-03-14T14:08:38+00:00"
       }
     ],
     "longing": [
@@ -99,7 +101,6 @@
       }
     ],
     "friend": [],
-    "relationship": [],
     "comfort": [],
     "courage": [],
     "challenge": [],
@@ -210,16 +211,16 @@
       "youtubeId": "ow0FfNRRJdM",
       "title": "K.hyun(케이현) - 사랑이 내게 왔네 🌸 | 운명처럼 다가온 감성 트로트 신곡",
       "publishedAt": "2026-04-12T15:42:27+00:00",
-      "category": "love",
-      "categoryLabel": "사랑",
+      "category": "relationship",
+      "categoryLabel": "인연",
       "matched": true
     },
     {
       "youtubeId": "7QV2JSvGgIo",
       "title": "총맞은 것처럼 (2026 Rearranged Ver.) | K.HYUN",
       "publishedAt": "2026-03-14T14:08:38+00:00",
-      "category": "family",
-      "categoryLabel": "가족",
+      "category": "love",
+      "categoryLabel": "사랑",
       "matched": false
     },
     {

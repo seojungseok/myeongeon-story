@@ -58,28 +58,12 @@ function normalizeCategory(value: string): string {
   return CATEGORY_MAP[v] || v || "life";
 }
 
-// ── YouTube song auto-assignment (optional) ──
-// If data/youtube-songs.json exists (from `npm run fetch:youtube`), each story
-// gets a category-matching song in its `youtubeId`. Songs rotate within a
-// category so multiple stories don't all get the same one.
-const SONGS_FILE = path.resolve(ROOT, "data/youtube-songs.json");
-let SONGS_BY_CAT: Record<string, { youtubeId: string }[]> = {};
-try {
-  if (fs.existsSync(SONGS_FILE)) {
-    const parsed = JSON.parse(fs.readFileSync(SONGS_FILE, "utf8"));
-    SONGS_BY_CAT = parsed.byCategory || {};
-  }
-} catch {
-  /* malformed songs file — skip assignment */
-}
-const songCursor: Record<string, number> = {};
-function pickSong(categorySlug: string): string {
-  const list = SONGS_BY_CAT[categorySlug];
-  if (!list || list.length === 0) return "";
-  const i = (songCursor[categorySlug] ?? 0) % list.length;
-  songCursor[categorySlug] = i + 1;
-  return list[i]?.youtubeId ?? "";
-}
+// ── YouTube song linking ──
+// Songs are NOT baked into story files anymore. The site resolves a
+// category-matching song at build time from data/youtube-songs.json
+// (see src/lib/songs.ts), so re-running `npm run fetch:youtube` auto-updates
+// every story's song without editing content files. New stories are written
+// with an empty youtubeId and rely on that resolver.
 
 async function main() {
   const jobs: { quote: string; categoryHint: string }[] = [];
@@ -257,8 +241,9 @@ function writeStory(
     coupangUrl: "",
     createdAt: new Date().toISOString().slice(0, 10),
     description: f.description,
-    // Category-matching song (empty string if no youtube-songs.json / no match).
-    youtubeId: pickSong(category),
+    // Left empty on purpose — the site resolves a category-matching song at
+    // build time (src/lib/songs.ts). Set a value here only to pin a specific song.
+    youtubeId: "",
   };
   // Suffix a short hash if the file exists, to avoid clobbering.
   let file = path.join(OUT_DIR, `${id}.json`);

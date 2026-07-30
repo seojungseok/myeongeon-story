@@ -8,10 +8,12 @@ import {
   getStory,
 } from "@/lib/content";
 import { getRelatedStories } from "@/lib/related";
+import { getSongForStory } from "@/lib/songs";
 import { readingTimeLabel } from "@/lib/readingTime";
 import {
   articleJsonLd,
   breadcrumbJsonLd,
+  quotationJsonLd,
   storyMetadata,
 } from "@/lib/seo";
 import { StoryImage } from "@/components/StoryImage";
@@ -53,6 +55,9 @@ export default function StoryPage({ params }: { params: { id: string } }) {
   const related = getRelatedStories(story, 5);
   const allIds = getAllStories().map((s) => s.id);
   const catLabel = categoryLabel(story.category);
+  // Category-matching song, resolved from data/youtube-songs.json at build time
+  // (auto-updates when `npm run fetch:youtube` refreshes the pool).
+  const songId = getSongForStory(story);
 
   return (
     <>
@@ -60,6 +65,7 @@ export default function StoryPage({ params }: { params: { id: string } }) {
       <JsonLd
         data={[
           articleJsonLd(story),
+          quotationJsonLd(story),
           breadcrumbJsonLd([
             { name: "홈", url: "/" },
             { name: catLabel, url: `/category/${story.category}` },
@@ -119,9 +125,9 @@ export default function StoryPage({ params }: { params: { id: string } }) {
 
         {/* Song player at the top — press play, then read as you scroll.
             Static iframe, so scrolling never interrupts playback. */}
-        {story.youtubeId && (
+        {songId && (
           <div className="mt-6">
-            <YouTubeEmbed id={story.youtubeId} title={story.title} />
+            <YouTubeEmbed id={songId} title={story.title} />
           </div>
         )}
 

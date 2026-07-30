@@ -17,7 +17,7 @@
 
 **지금 멈춘 지점 / 미해결 (다음에 이어서)**
 - 🔴 **실제 이야기가 3편뿐** → 홈 배너·최신글이 같은 글로 반복돼 보임. **콘텐츠 대량 생성이 최우선 다음 작업.**
-- 🟡 로컬 API 키 미설정 상태(집 컴퓨터면 `.env.local`을 새로 만들어 키 입력 필요).
+- 🟡 로컬 `.env.local` 부분 설정: `NEXT_PUBLIC_SITE_URL`·`AI_PROVIDER`·`NEXT_PUBLIC_AD_PREVIEW`만 채워짐. **글 생성/이미지 캐싱하려면 `GEMINI_API_KEY`·`PEXELS_API_KEY`가 비어 있어 추가 입력 필요.** (집 컴퓨터면 `.env.local`을 새로 만들어 6번 표대로 입력.)
 - 자세한 미완료는 아래 **3번** 참고.
 
 **집 컴퓨터에서 열면 바로 이 순서로**
@@ -28,7 +28,7 @@ npm install
 cp .env.local.example .env.local     # 그리고 키 입력 (6번 표의 '발급처' 참고)
 npm run dev                          # http://localhost:3000 에서 확인
 ```
-> 💡 가능하면 **로컬 디스크(C:)의 영문 경로**에 clone하세요. 그러면 지금 이 작업 PC(F: 드라이브·한글 경로 `F:\명언`)에서 겪은 `readlink`/OG 이미지 이슈가 아예 없습니다.
+> 💡 가능하면 **로컬 디스크(C:)의 영문 경로**에 clone하세요. 그러면 한글 경로 드라이브(예: 현재 이 작업 PC는 `D:\명언`, 이전엔 `F:\명언`)에서 겪은 `readlink`/OG 이미지 이슈가 아예 없습니다.
 
 **그다음 첫 작업 = 콘텐츠 늘리기. 바로 칠 첫 명령어:**
 ```bash
@@ -93,7 +93,7 @@ npm run gen:story -- --file scripts/quotes.txt
 - [ ] 애드센스 미설정(`NEXT_PUBLIC_ADSENSE_CLIENT` 비어 있음, 승인 후 입력)
 - [ ] 카카오 공유 키 미설정(`NEXT_PUBLIC_KAKAO_JS_KEY`) → 현재 링크복사로 폴백
 - [ ] **미사용 컴포넌트 정리**: `src/components/TodayCards.tsx` (홈 재설계로 현재 미사용)
-- [ ] (로컬 Windows 전용) F: 드라이브 `readlink` 이슈 → `scripts/patch-fs.cjs`로 우회 중. **Vercel(리눅스)에선 무관**
+- [ ] (로컬 Windows 전용) 한글 경로 드라이브(F:/D: 등)의 `readlink` 이슈 → `scripts/patch-fs.cjs`로 우회 중. **Vercel(리눅스)에선 무관**
 
 ---
 
@@ -133,7 +133,7 @@ npm run cache:images   # Pexels 이미지 빌드 전 캐싱 (--force 로 재캐�
 npm run gen:story      # AI 글 생성 (예: -- --file scripts/quotes.txt)
 npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (키 없으면 RSS)
 ```
-> dev/build/lint는 `cross-env NODE_OPTIONS=--require=./scripts/patch-fs.cjs`로 감싸져 있음(로컬 F: 드라이브 우회, Vercel 무해).
+> dev/build/lint는 `cross-env NODE_OPTIONS=--require=./scripts/patch-fs.cjs`로 감싸져 있음(로컬 한글 경로 드라이브 우회, Vercel 무해).
 
 ---
 
@@ -181,10 +181,11 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 ## 8. 마지막 업데이트 · 최근 커밋
 
 - **마지막 업데이트**: 2026-07-30
-- **현재 브랜치**: `main` (배포와 동기화됨, working tree 깨끗)
-- **최근 커밋**:
+- **현재 브랜치**: `main` (배포와 동기화됨)
+- **최근 커밋** (최신 5개):
+  - `3521089` Flesh out PROJECT_STATUS.md for cross-machine resume (집 이어작업용 현황 보강)
   - `2afcd4f` Add PROJECT_STATUS.md and CLAUDE.md (현황 문서 + 자동 갱신 규칙)
   - `d7812d6` Optimize home: lean layout per feedback (추천 랜덤·오늘의 명언 1개·최신글+더보기·/stories)
   - `f6d3091` Redesign home in mwohaji style (carousels + horizontal rows)
   - `8170298` Move song player to top, clean embed, improve image matching
-  - `07d3ed7` Assign K.HYUN songs to stories, add RSS fallback, tidy share/footer
+- **이 커밋에서 추가로 손본 것**: 드라이브 표기 `F:`→ 실제 `D:\명언` 반영(경로 이슈 설명 일반화), 0번 `.env.local` 실제 설정 상태 명시.

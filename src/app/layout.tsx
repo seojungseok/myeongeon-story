@@ -105,6 +105,16 @@ function SiteFooter() {
       <div className="container-wide flex flex-col gap-2 py-10 font-sans text-sm text-subtle">
         <p className="font-serif text-lg font-bold text-brand">{site.name}</p>
         <p>{site.tagline}</p>
+        <p className="mt-3">
+          <span className="font-medium text-ink">광고·제휴 및 기타 문의</span>
+          <span className="mx-2 text-line">|</span>
+          <a
+            href="mailto:tjwjdtjr11@naver.com"
+            className="text-brand underline decoration-line underline-offset-2 hover:decoration-brand"
+          >
+            tjwjdtjr11@naver.com
+          </a>
+        </p>
         <p className="mt-2 text-xs leading-relaxed">
           © {new Date().getFullYear()} {site.name}. 모든 이야기는 마음을 위한
           창작·재구성이며, 명언 출처가 분명하지 않은 경우 &lsquo;작자 미상&rsquo;으로

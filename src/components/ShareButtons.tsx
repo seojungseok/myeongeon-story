@@ -76,17 +76,24 @@ export function ShareButtons({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm text-subtle">이 이야기 나누기</span>
-      <button type="button" onClick={shareKakao} className="btn-ghost text-sm">
-        카카오톡
-      </button>
-      <button type="button" onClick={shareFacebook} className="btn-ghost text-sm">
-        페이스북
-      </button>
-      <button type="button" onClick={copyLink} className="btn-ghost text-sm">
-        {copied ? "복사됨!" : "링크 복사"}
-      </button>
+    <div className="rounded-2xl border border-line bg-paper-deep px-6 py-7 text-center">
+      <p className="font-serif text-lg text-brand">
+        이 이야기가 마음에 닿으셨나요?
+      </p>
+      <p className="mt-1 font-sans text-sm text-subtle">
+        소중한 분에게 이야기를 나눠보세요.
+      </p>
+      <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+        <button type="button" onClick={shareKakao} className="btn-ghost text-sm">
+          <span aria-hidden>💬</span> 카카오톡
+        </button>
+        <button type="button" onClick={shareFacebook} className="btn-ghost text-sm">
+          <span aria-hidden>👍</span> 페이스북
+        </button>
+        <button type="button" onClick={copyLink} className="btn-ghost text-sm">
+          <span aria-hidden>🔗</span> {copied ? "복사됨!" : "링크 복사"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -131,16 +131,60 @@ async function getAllVideos(playlistId: string): Promise<Video[]> {
   return videos;
 }
 
+// ── RSS fallback (no API key needed; returns ~15 latest videos) ──────────────
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
+async function fetchViaRss(channelId: string): Promise<Video[]> {
+  const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+  const res = await fetch(url);
+  if (!res.ok)
+    throw new Error(`RSS feed ${res.status} for channel ${channelId}`);
+  const xml = await res.text();
+
+  const videos: Video[] = [];
+  const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) ?? [];
+  for (const entry of entries) {
+    const youtubeId = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1] ?? "";
+    const title = decodeEntities(entry.match(/<title>([^<]*)<\/title>/)?.[1] ?? "");
+    const publishedAt = entry.match(/<published>([^<]+)<\/published>/)?.[1] ?? "";
+    if (!youtubeId) continue;
+    const cls = classify(title);
+    videos.push({
+      youtubeId,
+      title,
+      publishedAt,
+      category: cls.slug,
+      categoryLabel: cls.label,
+      matched: cls.matched,
+    });
+  }
+  console.log(`  fetched ${videos.length} videos via RSS`);
+  return videos;
+}
+
 // ── main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  if (!API_KEY) {
-    console.error("YOUTUBE_API_KEY is not set in .env.local. Aborting.");
-    process.exit(1);
-  }
-
   console.log(`[youtube] channel=${CHANNEL_ID}`);
-  const uploads = await getUploadsPlaylistId(CHANNEL_ID);
-  const videos = await getAllVideos(uploads);
+
+  let videos: Video[];
+  if (API_KEY) {
+    const uploads = await getUploadsPlaylistId(CHANNEL_ID);
+    videos = await getAllVideos(uploads);
+  } else {
+    console.warn(
+      "[youtube] YOUTUBE_API_KEY 없음 → 공개 RSS로 최신 ~15편만 수집합니다.\n" +
+        "           (전체 목록이 필요하면 .env.local에 키를 넣고 다시 실행하세요.)",
+    );
+    videos = await fetchViaRss(CHANNEL_ID);
+  }
 
   // Group by category for easy lookup during story generation.
   const byCategory: Record<string, { youtubeId: string; title: string; publishedAt: string }[]> = {};
@@ -155,6 +199,7 @@ async function main() {
 
   const output = {
     channelId: CHANNEL_ID,
+    source: API_KEY ? "api" : "rss",
     fetchedAt: new Date().toISOString(),
     totalVideos: videos.length,
     matchedCount: videos.filter((v) => v.matched).length,

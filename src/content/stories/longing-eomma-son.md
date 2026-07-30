@@ -22,6 +22,7 @@ photoKeyword: old woman hands warm light
 viewWeight: 72
 coupangUrl: ""
 createdAt: "2026-07-30"
+youtubeId: "3OGsmw3Iq-I"
 ---
 
 명절이 되면 나는 늘 어머니의 손을 떠올린다. 마디가 굵고, 손등이 거북이 등처럼 갈라진 손이었다. 어릴 적 나는 그 손이 부끄러웠다. 친구 어머니들의 곱고 흰 손과 달리, 우리 어머니의 손은 늘 물일과 밭일에 절어 있었다.

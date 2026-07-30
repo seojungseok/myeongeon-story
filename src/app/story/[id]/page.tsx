@@ -201,7 +201,7 @@ export default function StoryPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Share */}
-        <div className="mt-10 border-t border-line pt-6">
+        <div className="mt-10">
           <ShareButtons
             path={`/story/${story.id}`}
             title={story.title}

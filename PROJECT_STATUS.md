@@ -5,6 +5,39 @@
 
 ---
 
+## 0. 지금 상태 & 바로 다음 할 일 ⭐ (집에서 열면 여기부터)
+
+**오늘(2026-07-30) 어디까지 했나**
+- 사이트 전체 구축 → **Vercel 배포 완료** (https://myeongeon.kr), Google 서치콘솔 인증 완료
+- 홈을 mwohaji 스타일로 만들었다가 → **간결하게 최적화**: 카테고리 바(끝 화살표) · **추천 랜덤 배너** · **오늘의 명언 1개** · **최신글 슬라이더 + 더보기(`/stories`)**
+- 상세 페이지 **유튜브 노래 임베드**(상단, 무자동재생) + K.HYUN 곡 3편 배정, 공유 카드·푸터 문의 정리
+- 이미지 중복 회피(이야기 id별 파일 + Pexels dedup) 적용
+- `PROJECT_STATUS.md` / `CLAUDE.md` 문서화
+- **모든 변경 `main`에 push·배포 반영 확인됨** (working tree 깨끗)
+
+**지금 멈춘 지점 / 미해결 (다음에 이어서)**
+- 🔴 **실제 이야기가 3편뿐** → 홈 배너·최신글이 같은 글로 반복돼 보임. **콘텐츠 대량 생성이 최우선 다음 작업.**
+- 🟡 로컬 API 키 미설정 상태(집 컴퓨터면 `.env.local`을 새로 만들어 키 입력 필요).
+- 자세한 미완료는 아래 **3번** 참고.
+
+**집 컴퓨터에서 열면 바로 이 순서로**
+```bash
+git clone https://github.com/seojungseok/myeongeon-story.git
+cd myeongeon-story
+npm install
+cp .env.local.example .env.local     # 그리고 키 입력 (6번 표의 '발급처' 참고)
+npm run dev                          # http://localhost:3000 에서 확인
+```
+> 💡 가능하면 **로컬 디스크(C:)의 영문 경로**에 clone하세요. 그러면 지금 이 작업 PC(F: 드라이브·한글 경로 `F:\명언`)에서 겪은 `readlink`/OG 이미지 이슈가 아예 없습니다.
+
+**그다음 첫 작업 = 콘텐츠 늘리기. 바로 칠 첫 명령어:**
+```bash
+npm run gen:story -- --file scripts/quotes.txt
+```
+> 실행 전 `.env.local`에 `GEMINI_API_KEY` 필요. `scripts/quotes.txt`에 명언을 더 채운 뒤 실행 → 생성물 검토 → `npm run cache:images` → commit·push. (상세는 7번)
+
+---
+
 ## 1. 프로젝트 기본 정보
 
 | 항목 | 값 |
@@ -104,20 +137,25 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 
 ---
 
-## 6. 환경변수 (`.env.local.example` 기준 — 값 제외)
+## 6. 환경변수 (`.env.local.example` 기준 — 값은 제외, **발급처 포함**)
 
-```
-NEXT_PUBLIC_SITE_URL        # 배포 주소 (https://myeongeon.kr)
-PEXELS_API_KEY              # 이미지 캐싱
-AI_PROVIDER                # gemini | openai | anthropic (기본 gemini)
-GEMINI_API_KEY             # 글 생성 (기본 제공자)
-OPENAI_API_KEY             # (선택)
-ANTHROPIC_API_KEY          # (선택)
-YOUTUBE_API_KEY            # 유튜브 전체 수집 (없으면 RSS 폴백)
-NEXT_PUBLIC_KAKAO_JS_KEY   # 카카오 공유 (선택)
-NEXT_PUBLIC_ADSENSE_CLIENT # 애드센스 (승인 후)
-NEXT_PUBLIC_AD_PREVIEW     # 광고 자리 미리보기 (true/false)
-```
+`.env.local`에 입력. `NEXT_PUBLIC_*`은 브라우저에 노출되는 공개값.
+
+| 변수 | 용도 | 값을 어디서 |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | 배포 주소(canonical/OG/sitemap) | 직접 지정 = `https://myeongeon.kr` |
+| `PEXELS_API_KEY` | 이미지 캐싱 | https://www.pexels.com/api/ (무료 가입 → API 키) |
+| `AI_PROVIDER` | 글 생성 제공자 선택 | 직접 지정 = `gemini` (기본) |
+| `GEMINI_API_KEY` | 글 생성(기본) | https://aistudio.google.com/apikey (Google AI Studio) |
+| `OPENAI_API_KEY` | 글 생성(선택) | https://platform.openai.com/api-keys |
+| `ANTHROPIC_API_KEY` | 글 생성(선택) | https://console.anthropic.com/ |
+| `YOUTUBE_API_KEY` | 유튜브 전체 수집(없으면 RSS 폴백) | https://console.cloud.google.com/ → "YouTube Data API v3" 사용 설정 → 사용자 인증정보 → API 키 |
+| `NEXT_PUBLIC_KAKAO_JS_KEY` | 카카오 공유(선택) | https://developers.kakao.com/ → 내 앱 → 앱 키 → **JavaScript 키** |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | 애드센스(승인 후) | https://www.google.com/adsense → 게시자 ID `ca-pub-...` |
+| `NEXT_PUBLIC_AD_PREVIEW` | 광고 자리 미리보기 | 직접 지정 = `true`/`false` (기본 false) |
+
+> **Vercel 배포용 키**는 코드가 아니라 **Vercel 대시보드 → 프로젝트 → Settings → Environment Variables**에 넣습니다.
+> 현재 Vercel엔 `PEXELS_API_KEY`, `NEXT_PUBLIC_SITE_URL`이 설정돼 있음(이미지·SEO 정상). 변수 바꾸면 **Redeploy** 필요.
 
 ---
 
@@ -143,10 +181,10 @@ NEXT_PUBLIC_AD_PREVIEW     # 광고 자리 미리보기 (true/false)
 ## 8. 마지막 업데이트 · 최근 커밋
 
 - **마지막 업데이트**: 2026-07-30
-- **현재 브랜치**: `main` (배포와 동기화됨)
+- **현재 브랜치**: `main` (배포와 동기화됨, working tree 깨끗)
 - **최근 커밋**:
+  - `2afcd4f` Add PROJECT_STATUS.md and CLAUDE.md (현황 문서 + 자동 갱신 규칙)
   - `d7812d6` Optimize home: lean layout per feedback (추천 랜덤·오늘의 명언 1개·최신글+더보기·/stories)
   - `f6d3091` Redesign home in mwohaji style (carousels + horizontal rows)
   - `8170298` Move song player to top, clean embed, improve image matching
   - `07d3ed7` Assign K.HYUN songs to stories, add RSS fallback, tidy share/footer
-  - `6e8b33e` Add category-matching YouTube song embed + fetch script

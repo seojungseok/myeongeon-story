@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { categoryLabel } from "@/config/categories";
-import { readingTimeLabel } from "@/lib/readingTime";
 import type { Story } from "@/lib/types";
 import { StoryImage } from "./StoryImage";
 
@@ -39,9 +38,7 @@ export function StoryCard({
             {story.description}
           </p>
         )}
-        <div className="mt-3 flex items-center gap-2 font-sans text-xs text-subtle">
-          <span>{readingTimeLabel(story.story)}</span>
-          <span aria-hidden>·</span>
+        <div className="mt-3 font-sans text-xs text-subtle">
           <span>{story.createdAt}</span>
         </div>
       </div>

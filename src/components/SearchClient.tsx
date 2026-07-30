@@ -16,7 +16,6 @@ export type SearchIndexItem = {
   tags: string[];
   image?: string;
   createdAt: string;
-  readLabel: string;
 };
 
 /**
@@ -89,7 +88,7 @@ export function SearchClient({ index }: { index: SearchIndexItem[] }) {
                 &ldquo;{it.quote}&rdquo;
               </p>
               <div className="mt-3 text-xs text-subtle">
-                {it.readLabel} · {it.createdAt}
+                {it.createdAt}
               </div>
             </div>
           </Link>

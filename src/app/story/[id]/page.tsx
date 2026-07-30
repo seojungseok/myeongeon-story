@@ -9,7 +9,6 @@ import {
 } from "@/lib/content";
 import { getRelatedStories } from "@/lib/related";
 import { getSongForStory } from "@/lib/songs";
-import { readingTimeLabel } from "@/lib/readingTime";
 import {
   articleJsonLd,
   breadcrumbJsonLd,
@@ -107,7 +106,7 @@ export default function StoryPage({ params }: { params: { id: string } }) {
         {/* Meta */}
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-sans text-sm text-subtle">
-            {readingTimeLabel(story.story)} · {story.createdAt}
+            {story.createdAt}
           </span>
           <BookmarkButton id={story.id} />
         </div>

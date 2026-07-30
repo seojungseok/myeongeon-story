@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getAllStories } from "@/lib/content";
-import { readingTimeLabel } from "@/lib/readingTime";
 import { BookmarksClient } from "@/components/BookmarksClient";
 import type { SearchIndexItem } from "@/components/SearchClient";
 
@@ -22,7 +21,6 @@ export default function BookmarksPage() {
     tags: s.tags,
     image: s.image,
     createdAt: s.createdAt,
-    readLabel: readingTimeLabel(s.story),
   }));
 
   return (

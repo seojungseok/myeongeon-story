@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getAllStories } from "@/lib/content";
-import { readingTimeLabel } from "@/lib/readingTime";
 import { listMetadata } from "@/lib/seo";
 import { SearchClient, type SearchIndexItem } from "@/components/SearchClient";
 
@@ -29,7 +28,6 @@ export default function SearchPage() {
     tags: s.tags,
     image: s.image,
     createdAt: s.createdAt,
-    readLabel: readingTimeLabel(s.story),
   }));
 
   return (

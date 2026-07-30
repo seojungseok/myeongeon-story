@@ -1,27 +1,25 @@
 /**
- * generate-story.ts — admin tool. Turns a quote (or a list of quotes) into a
- * full story JSON file for src/content/stories/, using an AI provider.
+ * generate-story.ts — turns quotes into story JSON files for src/content/stories/,
+ * using Gemini. Built to run unattended (GitHub Actions cron) yet stay safe:
  *
- * Provider is swappable via env AI_PROVIDER = gemini | openai | anthropic.
- * Default: gemini (gemini-2.5-flash) — cheapest.
+ *  - A VALIDATION GATE rejects drift. A story is written only if it (a) parses,
+ *    (b) actually ends on the given quote, (c) titles it with the given author,
+ *    and (d) is a sane length. Failures are retried, then skipped — a bad story
+ *    is never published.
+ *  - SKIP-USED: quotes already turned into a story are skipped, so re-running
+ *    daily keeps producing NEW stories from the pool without duplicates.
  *
- * The prompt/tone lives in scripts/prompt-template.txt (edit freely).
- * Generated files are written for REVIEW — they are NOT auto-deployed. Read,
- * tweak, then commit.
+ * The prompt/tone lives in scripts/prompt-template.txt.
+ *
+ * Env:
+ *   GEMINI_API_KEY   required
+ *   GEMINI_MODEL     default "gemini-3-flash-preview" (cost-effective)
  *
  * Usage:
- *   # single quote
- *   npm run gen:story -- --quote "천 리 길도 한 걸음부터." --category effort
+ *   npm run gen:story -- --quote "…" --author 니체 --category courage
+ *   npm run gen:story -- --file scripts/quotes.txt --count 10   # daily batch
  *
- *   # batch: a text file with one quote per line, optionally "quote | category"
- *   npm run gen:story -- --file scripts/quotes.txt
- *
- * Options:
- *   --quote "..."        one quote
- *   --category <slug>    category slug (default: life)
- *   --file <path>        batch file, one quote per line ("quote | category")
- *   --out <dir>          output dir (default: src/content/stories)
- *   --delay <ms>         delay between requests (default: 4000)
+ * quotes.txt line format:  명언 | 카테고리슬러그 | 작가   (뒤 두 개는 생략 가능)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -29,21 +27,17 @@ import path from "node:path";
 const ROOT = process.cwd();
 loadEnvLocal();
 
-const PROVIDER = (process.env.AI_PROVIDER || "gemini").toLowerCase();
-const TEMPLATE = fs.readFileSync(
-  path.join(ROOT, "scripts", "prompt-template.txt"),
-  "utf8",
-);
+const MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+const TEMPLATE = fs.readFileSync(path.join(ROOT, "scripts", "prompt-template.txt"), "utf8");
 
-// ---- args ------------------------------------------------------------------
 const args = parseArgs(process.argv.slice(2));
 const OUT_DIR = path.resolve(ROOT, (args.out as string) || "src/content/stories");
-const DELAY = Number(args.delay ?? 4000);
-// Optional category HINT. When empty, the AI picks the category itself.
+const DELAY = Number(args.delay ?? 3000);
+const COUNT = args.count ? Number(args.count) : Infinity; // max stories to write
+const MAX_RETRIES = 3;
 const CATEGORY_HINT = typeof args.category === "string" ? (args.category as string) : "";
+const AUTHOR_ARG = typeof args.author === "string" ? (args.author as string) : "";
 
-// Korean label → slug, so generated files store canonical slugs. Unknown values
-// pass through untouched (the site's content loader also normalizes at read).
 const CATEGORY_MAP: Record<string, string> = {
   인생: "life", 위로: "comfort", 용기: "courage", 인연: "relationship",
   그리움: "longing", 성공: "success", 노력: "effort", 사랑: "love",
@@ -51,230 +45,181 @@ const CATEGORY_MAP: Record<string, string> = {
   시간: "time", 가족: "family", 희망: "hope",
 };
 const SLUGS = new Set(Object.values(CATEGORY_MAP));
-
-function normalizeCategory(value: string): string {
-  const v = value.trim();
-  if (SLUGS.has(v)) return v;
-  return CATEGORY_MAP[v] || v || "life";
+function normalizeCategory(v: string): string {
+  const t = (v || "").trim();
+  if (SLUGS.has(t)) return t;
+  return CATEGORY_MAP[t] || t || "life";
 }
 
-// ── YouTube song linking ──
-// Songs are NOT baked into story files anymore. The site resolves a
-// category-matching song at build time from data/youtube-songs.json
-// (see src/lib/songs.ts), so re-running `npm run fetch:youtube` auto-updates
-// every story's song without editing content files. New stories are written
-// with an empty youtubeId and rely on that resolver.
-
-async function main() {
-  const jobs: { quote: string; categoryHint: string }[] = [];
-
-  if (args.file) {
-    const lines = fs
-      .readFileSync(path.resolve(ROOT, args.file as string), "utf8")
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l && !l.startsWith("#"));
-    for (const line of lines) {
-      const [q, c] = line.split("|").map((x) => x.trim());
-      // Per-line category wins; otherwise fall back to --category, else "" (AI picks).
-      jobs.push({ quote: q, categoryHint: c || CATEGORY_HINT });
-    }
-  } else if (args.quote) {
-    jobs.push({ quote: args.quote as string, categoryHint: CATEGORY_HINT });
-  } else {
-    console.error(
-      'Provide --quote "..." or --file <path>. See header of this script for usage.',
-    );
-    process.exit(1);
-  }
-
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  console.log(`[gen] provider=${PROVIDER}  jobs=${jobs.length}  out=${OUT_DIR}`);
-
-  let ok = 0;
-  for (let i = 0; i < jobs.length; i++) {
-    const { quote, categoryHint } = jobs[i];
-    try {
-      console.log(`\n[${i + 1}/${jobs.length}] "${quote}"`);
-      const fields = await generate(quote, categoryHint);
-      const file = writeStory(fields, quote, categoryHint);
-      console.log(`  ✓ saved ${path.relative(ROOT, file)}  [${normalizeCategory(categoryHint || fields.category)}]`);
-      ok++;
-    } catch (e) {
-      console.warn(`  ! failed: ${(e as Error).message}`);
-    }
-    if (i < jobs.length - 1) await sleep(DELAY); // respect free-tier RPM
-  }
-
-  console.log(`\n[gen] done. ${ok}/${jobs.length} generated. Review, then commit.`);
+// ── text helpers for validation ─────────────────────────────────────────────
+/** Strip whitespace/quotes/punctuation and NFC-normalize, for robust Korean compares. */
+function norm(s: string): string {
+  return (s || "").normalize("NFC").replace(/[\s"'“”‘’.,!?·…「」『』]/g, "");
+}
+/** The quote's longest sentence — what the story must contain verbatim. */
+function quoteCore(quote: string): string {
+  const parts = quote.split(/[.!?。\n]/).map((x) => x.trim()).filter(Boolean);
+  return parts.sort((a, b) => b.length - a.length)[0] || quote;
 }
 
-// ---- AI providers ----------------------------------------------------------
-
-type GeneratedFields = {
-  category: string;
-  title: string;
-  quote: string;
-  quoteAuthor: string;
-  story: string;
-  lesson: string;
-  todayAction: string;
-  tags: string[];
-  photoKeyword: string;
-  description: string;
+type Job = { quote: string; category: string; author: string };
+type Fields = {
+  category: string; title: string; quoteAuthor: string; story: string;
+  lesson: string; todayAction: string; tags: string[]; photoKeyword: string; description: string;
 };
 
-async function generate(
-  quote: string,
-  categoryHint: string,
-): Promise<GeneratedFields> {
-  const prompt = TEMPLATE.replace("{{QUOTE}}", quote).replace(
-    "{{CATEGORY}}",
-    categoryHint,
-  );
-  const raw =
-    PROVIDER === "openai"
-      ? await callOpenAI(prompt)
-      : PROVIDER === "anthropic"
-        ? await callAnthropic(prompt)
-        : await callGemini(prompt);
+async function main() {
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("GEMINI_API_KEY is not set."); process.exit(1);
+  }
 
-  const json = extractJson(raw);
+  let jobs: Job[] = [];
+  if (args.file) {
+    const lines = fs.readFileSync(path.resolve(ROOT, args.file as string), "utf8")
+      .split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
+    for (const line of lines) {
+      const [q, c, a] = line.split("|").map((x) => (x ?? "").trim());
+      if (q) jobs.push({ quote: q, category: c || CATEGORY_HINT, author: a || AUTHOR_ARG });
+    }
+  } else if (args.quote) {
+    jobs.push({ quote: args.quote as string, category: CATEGORY_HINT, author: AUTHOR_ARG });
+  } else {
+    console.error('Provide --quote "..." or --file <path>.'); process.exit(1);
+  }
+
+  // Skip quotes that already have a story (so daily runs make NEW ones).
+  const used = usedQuotes();
+  const before = jobs.length;
+  jobs = jobs.filter((j) => !used.has(norm(j.quote)));
+  if (before !== jobs.length) console.log(`[gen] skip ${before - jobs.length} already-used quote(s).`);
+
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  console.log(`[gen] model=${MODEL}  pool=${jobs.length}  target=${COUNT === Infinity ? "all" : COUNT}`);
+
+  let written = 0, skipped = 0;
+  for (const job of jobs) {
+    if (written >= COUNT) break;
+    const result = await generateValid(job);
+    if (result) {
+      const file = writeStory(result, job);
+      console.log(`  ✓ ${path.relative(ROOT, file)}`);
+      written++;
+    } else {
+      console.warn(`  ✗ skip (검증 실패): "${job.quote.slice(0, 30)}…"`);
+      skipped++;
+    }
+    await sleep(DELAY);
+  }
+  console.log(`\n[gen] done. written=${written} skipped=${skipped}`);
+}
+
+/** Generate, validate, and retry. Returns valid fields or null. */
+async function generateValid(job: Job): Promise<Fields | null> {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const f = await generate(job);
+      const core = norm(quoteCore(job.quote));
+      const quoteLanded = norm(f.story).includes(core);
+      const authorOk = !job.author || norm(f.title).includes(norm(job.author));
+      const lenOk = f.story.length >= 450 && f.story.length <= 1300;
+      if (quoteLanded && authorOk && lenOk && f.title && f.lesson && f.todayAction) return f;
+      console.warn(`    · attempt ${attempt} invalid (quote:${quoteLanded} author:${authorOk} len:${lenOk})`);
+    } catch (e) {
+      console.warn(`    · attempt ${attempt} error: ${(e as Error).message.slice(0, 120)}`);
+    }
+    if (attempt < MAX_RETRIES) await sleep(1500);
+  }
+  return null;
+}
+
+async function generate(job: Job): Promise<Fields> {
+  const prompt = TEMPLATE
+    .replace("{{QUOTE}}", job.quote)
+    .replace("{{AUTHOR}}", job.author)
+    .replace("{{CATEGORY}}", job.category);
+  const raw = await callGemini(prompt);
+  const j = extractJson(raw);
   return {
-    category: String(json.category ?? "").trim(),
-    title: String(json.title ?? "").trim(),
-    quote: String(json.quote ?? "").trim(),
-    quoteAuthor: String(json.quoteAuthor ?? "작자 미상").trim(),
-    story: String(json.story ?? "").trim(),
-    lesson: String(json.lesson ?? "").trim(),
-    todayAction: String(json.todayAction ?? "").trim(),
-    tags: Array.isArray(json.tags) ? json.tags.map(String) : [],
-    photoKeyword: String(json.photoKeyword ?? "").trim(),
-    description: String(json.description ?? "").trim(),
+    category: String(j.category ?? "").trim(),
+    title: String(j.title ?? "").trim(),
+    quoteAuthor: String(j.quoteAuthor ?? job.author ?? "작자 미상").trim(),
+    story: String(j.story ?? "").trim(),
+    lesson: String(j.lesson ?? "").trim(),
+    todayAction: String(j.todayAction ?? "").trim(),
+    tags: Array.isArray(j.tags) ? j.tags.map(String) : [],
+    photoKeyword: String(j.photoKeyword ?? "").trim(),
+    description: String(j.description ?? "").trim(),
   };
 }
 
 async function callGemini(prompt: string): Promise<string> {
-  const key = requireKey("GEMINI_API_KEY");
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+  const key = process.env.GEMINI_API_KEY as string;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`;
+  const generationConfig: Record<string, unknown> = {
+    temperature: 0.85, responseMimeType: "application/json", maxOutputTokens: 8192,
+  };
+  // flash models can leak "thinking" into the JSON; disable it for clean output + cost.
+  if (MODEL.includes("flash")) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.9, responseMimeType: "application/json" },
-    }),
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig }),
   });
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 }
 
-async function callOpenAI(prompt: string): Promise<string> {
-  const key = requireKey("OPENAI_API_KEY");
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.9,
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data?.choices?.[0]?.message?.content ?? "";
-}
-
-async function callAnthropic(prompt: string): Promise<string> {
-  const key = requireKey("ANTHROPIC_API_KEY");
-  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": key,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 2048,
-      temperature: 0.9,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) throw new Error(`Anthropic ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data?.content?.[0]?.text ?? "";
-}
-
-// ---- output ----------------------------------------------------------------
-
-function writeStory(
-  f: GeneratedFields,
-  quote: string,
-  categoryHint: string,
-): string {
-  const id = makeId(f.title || quote);
-  // Category: explicit hint wins, else the AI's choice, else "life".
-  const category = normalizeCategory(categoryHint || f.category || "life");
+function writeStory(f: Fields, job: Job): string {
+  const category = normalizeCategory(job.category || f.category || "life");
+  const author = job.author || f.quoteAuthor || "작자 미상";
+  // Ensure the title leads with the author (validation already checked presence).
+  const title = f.title;
+  const id = makeId(title || job.quote);
   const story = {
-    id,
-    category,
-    tags: f.tags,
-    title: f.title,
-    // Always keep the EXACT input quote (never let the model alter it).
-    quote,
-    quoteAuthor: f.quoteAuthor || "작자 미상",
-    story: f.story,
-    lesson: f.lesson,
-    todayAction: f.todayAction,
+    id, category, tags: f.tags, title,
+    quote: job.quote,                 // always the exact input quote
+    quoteAuthor: author,
+    story: f.story, lesson: f.lesson, todayAction: f.todayAction,
     relatedQuotes: [] as { text: string; author: string }[],
-    photoKeyword: f.photoKeyword,
-    viewWeight: 10,
-    coupangUrl: "",
+    photoKeyword: f.photoKeyword, viewWeight: 10, coupangUrl: "",
     createdAt: new Date().toISOString().slice(0, 10),
     description: f.description,
-    // Left empty on purpose — the site resolves a category-matching song at
-    // build time (src/lib/songs.ts). Set a value here only to pin a specific song.
-    youtubeId: "",
+    youtubeId: "",                    // resolved at build time by src/lib/songs.ts
   };
-  // Suffix a short hash if the file exists, to avoid clobbering.
   let file = path.join(OUT_DIR, `${id}.json`);
   if (fs.existsSync(file)) file = path.join(OUT_DIR, `${id}-${Date.now()}.json`);
   fs.writeFileSync(file, JSON.stringify(story, null, 2) + "\n", "utf8");
   return file;
 }
 
-// ---- helpers ---------------------------------------------------------------
+/** Normalized quotes that already have a story file. */
+function usedQuotes(): Set<string> {
+  const set = new Set<string>();
+  if (!fs.existsSync(OUT_DIR)) return set;
+  for (const f of fs.readdirSync(OUT_DIR)) {
+    if (!/\.(json|md|mdx)$/i.test(f)) continue;
+    const text = fs.readFileSync(path.join(OUT_DIR, f), "utf8");
+    const m = /\.json$/i.test(f)
+      ? safeJson(text)?.quote
+      : text.match(/^quote:\s*["']?(.+?)["']?\s*$/m)?.[1];
+    if (m) set.add(norm(String(m)));
+  }
+  return set;
+}
+function safeJson(t: string): any { try { return JSON.parse(t); } catch { return null; } }
 
 function extractJson(text: string): Record<string, any> {
-  const cleaned = text.replace(/```json|```/g, "").trim();
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("No JSON found in AI response.");
-  return JSON.parse(cleaned.slice(start, end + 1));
+  const c = text.replace(/```json|```/g, "").trim();
+  const s = c.indexOf("{"), e = c.lastIndexOf("}");
+  if (s === -1 || e === -1) throw new Error("No JSON in model output.");
+  return JSON.parse(c.slice(s, e + 1));
 }
 
 function makeId(seed: string): string {
-  const base = seed
-    .toLowerCase()
-    .replace(/[^a-z0-9가-힣]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 40);
+  const base = seed.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
   return base || `story-${Date.now()}`;
-}
-
-function requireKey(name: string): string {
-  const v = process.env[name];
-  if (!v) throw new Error(`${name} is not set in .env.local`);
-  return v;
 }
 
 function parseArgs(argv: string[]): Record<string, string | boolean> {
@@ -282,29 +227,21 @@ function parseArgs(argv: string[]): Record<string, string | boolean> {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a.startsWith("--")) {
-      const key = a.slice(2);
-      const next = argv[i + 1];
-      if (next && !next.startsWith("--")) {
-        out[key] = next;
-        i++;
-      } else out[key] = true;
+      const key = a.slice(2), next = argv[i + 1];
+      if (next && !next.startsWith("--")) { out[key] = next; i++; } else out[key] = true;
     }
   }
   return out;
 }
 
 function loadEnvLocal() {
-  const envPath = path.join(ROOT, ".env.local");
-  if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+  const p = path.join(ROOT, ".env.local");
+  if (!fs.existsSync(p)) return;
+  for (const line of fs.readFileSync(p, "utf8").split("\n")) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
     if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
   }
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-main().catch((e) => {
-  console.error("[gen] fatal:", e);
-  process.exit(1);
-});
+main().catch((e) => { console.error("[gen] fatal:", e); process.exit(1); });

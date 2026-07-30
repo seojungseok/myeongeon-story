@@ -77,6 +77,14 @@ npm run gen:story -- --file scripts/quotes.txt
 - 쿠팡: `coupangUrl` 있을 때만 배너 + 파트너스 문구 자동
 - 푸터에 광고·제휴/기타 문의 메일(tjwjdtjr11@naver.com)
 
+**매일 자동 글 생성** (GitHub Actions)
+- `.github/workflows/daily-stories.yml`: **매일 06:00 KST** Gemini로 이야기 생성 → 커밋 → Vercel 자동 배포. **컴퓨터 꺼져 있어도** GitHub 서버가 돌림. 수동 실행(workflow_dispatch)도 가능.
+- 모델 **`gemini-3-flash-preview`**(가성비). `scripts/generate-story.ts`에 **검증 게이트**: 명언 그대로 착지·작가 제목 확인·길이 검사 실패 시 재시도(3회), 그래도 실패면 **그 명언은 건너뜀**(이상한 글 발행 방지). 이미 쓴 명언은 skip → 매일 새 글.
+- 명언 풀 `scripts/quotes.txt`(형식 `명언 | 카테고리 | 작가`). 소진되면 여기에 계속 추가.
+- ⚠️ **1회 설정 필요**: GitHub 저장소 → Settings → Secrets and variables → Actions → `GEMINI_API_KEY` 등록(값은 Google AI Studio 키. Vercel 키는 Sensitive라 재사용 불가).
+- 로컬 수동 실행: `npm run gen:story -- --file scripts/quotes.txt --count 10` (로컬 `.env.local`에 `GEMINI_API_KEY` 필요).
+- 참고: 추상적·염세적 명언(예 쇼펜하우어 "시계추")은 모델이 딴 뜻으로 새서 검증 스킵됨 → 구체적 명언 위주로 채울 것.
+
 **방문자 카운터** (푸터)
 - `전체 방문 · 오늘` 표시. `src/app/api/visit/route.ts` + `src/components/VisitCounter.tsx`.
 - 저장은 무료 카운터 서비스 **abacus**(무가입, namespace `myeongeon-kr-v1`) 사용 — 별도 DB 불필요. 서버 라우트가 카운트, **httpOnly 쿠키로 브라우저·하루 1회만** 증가(중복 방지). 서비스 불통 시 위젯 자동 숨김.

@@ -1,0 +1,57 @@
+name: Daily auto-generated stories
+
+# 매일 새 이야기를 Gemini로 생성해 커밋 → Vercel 자동 배포.
+# 컴퓨터가 꺼져 있어도 GitHub 서버에서 실행됩니다.
+#
+# 사전 설정 (1회):
+#   GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
+#     Name: GEMINI_API_KEY   Value: (Google AI Studio 키)
+#   (선택) 모델 바꾸려면 secret 또는 아래 env의 GEMINI_MODEL 수정.
+
+on:
+  schedule:
+    - cron: "0 21 * * *" # 매일 21:00 UTC = 한국 06:00
+  workflow_dispatch: # 수동 실행 버튼도 제공
+    inputs:
+      count:
+        description: "생성할 이야기 수"
+        default: "10"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-stories
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Generate stories
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3-flash-preview
+        run: npm run gen:story -- --file scripts/quotes.txt --count ${{ github.event.inputs.count || '10' }}
+
+      - name: Commit & push if there are new stories
+        run: |
+          git config user.name "myeongeon-bot"
+          git config user.email "actions@github.com"
+          if [ -n "$(git status --porcelain src/content/stories)" ]; then
+            git add src/content/stories
+            git commit -m "chore: daily auto-generated stories ($(date -u +%Y-%m-%d))"
+            git push
+            echo "pushed new stories."
+          else
+            echo "no new stories (pool may be exhausted — add more to scripts/quotes.txt)."
+          fi

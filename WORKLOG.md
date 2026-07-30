@@ -34,6 +34,13 @@
 - 배포: https://myeongeon.kr (커밋 `8fa69de`까지 반영). working tree 깨끗(설정 파일 제외).
 - 이야기 **5편**: courage-mandela, effort-cheonrigil, longing-eomma-son, **nietzsche-pain-stronger**, **tolstoy-now-beside-you**.
 
+### 추가: 매일 자동 글 생성 파이프라인 구축
+- **모델 확인**: 서버 키로 사용 가능 모델 조회 → gemini-3.x pro/flash, `gemini-flash-latest` 등 존재. 어제 2.5-pro보다 몇 세대 위.
+- **가성비 결정**: `gemini-3-flash-preview` (pro는 비쌈). 품질 테스트: 구체 명언(부처)=명언 그대로 착지·작가 정확 ✅ / 추상 명언(쇼펜하우어)=드리프트 ❌ → **검증 게이트로 자동 스킵**.
+- **`scripts/generate-story.ts` 개편**: 검증(명언 착지·작가·길이)+재시도3+실패시 스킵, 이미 쓴 명언 skip, `--count N`, 작가 포함 프롬프트. `scripts/prompt-template.txt` 강한 충실도 규칙. `scripts/quotes.txt` = `명언|카테고리|작가` 형식.
+- **`.github/workflows/daily-stories.yml`**: 매일 06:00 KST 크론(+수동 실행). GitHub 서버 실행 → 커밋 → Vercel 배포.
+- ⚠️ **해야 할 1회 설정**: GitHub repo Settings → Secrets → Actions → **`GEMINI_API_KEY`** 등록해야 실제로 돎. 그 전엔 안 돌아감.
+
 ### 내일(회사에서) 이어서 할 일 ⭐
 1. **손글씨 이야기 계속 쓰기** — 철학자·인간관계 주제. 다음 예정 3편:
    - 마르쿠스 아우렐리우스 "가장 좋은 복수는 그들처럼 되지 않는 것" (무례한 사람 대처)

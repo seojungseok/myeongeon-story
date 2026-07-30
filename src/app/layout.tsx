@@ -48,6 +48,11 @@ export const metadata: Metadata = {
     canonical: site.url,
     types: { "application/rss+xml": `${site.url}/rss.xml` },
   },
+  verification: {
+    other: {
+      "naver-site-verification": "c99e31dcd901de19bc6ac576d737b5009772bb1b",
+    },
+  },
 };
 
 export default function RootLayout({

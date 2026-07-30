@@ -212,9 +212,22 @@ function safeJson(t: string): any { try { return JSON.parse(t); } catch { return
 
 function extractJson(text: string): Record<string, any> {
   const c = text.replace(/```json|```/g, "").trim();
-  const s = c.indexOf("{"), e = c.lastIndexOf("}");
-  if (s === -1 || e === -1) throw new Error("No JSON in model output.");
-  return JSON.parse(c.slice(s, e + 1));
+  const start = c.indexOf("{");
+  if (start === -1) throw new Error("No JSON in model output.");
+  // Scan for the first balanced {…} object; ignore any trailing junk the model
+  // sometimes appends after the JSON (which broke naive first{…last} slicing).
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < c.length; i++) {
+    const ch = c[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+    } else if (ch === '"') inStr = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}") { depth--; if (depth === 0) return JSON.parse(c.slice(start, i + 1)); }
+  }
+  throw new Error("No balanced JSON in model output.");
 }
 
 function makeId(seed: string): string {

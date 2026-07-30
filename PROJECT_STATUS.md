@@ -194,10 +194,10 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 
 - **마지막 업데이트**: 2026-07-30
 - **현재 브랜치**: `main` (배포와 동기화됨)
+- **날짜별 작업 메모는 [`WORKLOG.md`](WORKLOG.md) 참고** (회사 등 다른 PC에서 이어작업용).
 - **최근 커밋** (최신 5개):
-  - `dff7eb0` Update PROJECT_STATUS.md: fix drive paths (F:→D:), refresh env/commit notes
-  - `3521089` Flesh out PROJECT_STATUS.md for cross-machine resume (집 이어작업용 현황 보강)
-  - `2afcd4f` Add PROJECT_STATUS.md and CLAUDE.md (현황 문서 + 자동 갱신 규칙)
-  - `d7812d6` Optimize home: lean layout per feedback (추천 랜덤·오늘의 명언 1개·최신글+더보기·/stories)
-  - `f6d3091` Redesign home in mwohaji style (carousels + horizontal rows)
-- **이번 작업(말투·주제·노래·SEO 5대 개선)에서 바뀐 파일**: `scripts/prompt-template.txt`, `scripts/quotes.txt`, `scripts/generate-story.ts`, `scripts/fetch-youtube.ts`, `src/lib/songs.ts`(신규), `src/lib/seo.ts`, `src/app/story/[id]/page.tsx`, 기존 이야기 3편, `data/youtube-songs.json`.
+  - `8fa69de` Add visitor counter (전체 방문 / 오늘) in the footer
+  - `b2965e1` Theme-based song↔story matching (fix mismatches) + add Tolstoy story
+  - `c8782f2` Add hand-written Nietzsche story; note Gemini auto-gen quality limits
+  - `2b2e2a3` Add Naver site verification meta tag
+  - `6161b98` Improve tone, content direction, song auto-linking, and SEO

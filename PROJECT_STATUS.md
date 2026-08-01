@@ -21,7 +21,7 @@
 
 **지금 멈춘 지점 / 미해결 (다음에 이어서)**
 - 🔴 **실제 이야기가 3편뿐** → 홈 배너·최신글이 같은 글로 반복돼 보임. **콘텐츠 대량 생성이 최우선 다음 작업.**
-- 🟡 로컬 `.env.local` 부분 설정: `NEXT_PUBLIC_SITE_URL`·`AI_PROVIDER`·`NEXT_PUBLIC_AD_PREVIEW`만 채워짐. **글 생성/이미지 캐싱하려면 `GEMINI_API_KEY`·`PEXELS_API_KEY`가 비어 있어 추가 입력 필요.** (집 컴퓨터면 `.env.local`을 새로 만들어 6번 표대로 입력.)
+- 🟡 로컬 `.env.local` 부분 설정: `NEXT_PUBLIC_SITE_URL`·`AI_PROVIDER=openai`·`NEXT_PUBLIC_AD_PREVIEW`만 채워짐. **글 생성/이미지 캐싱하려면 `OPENAI_API_KEY`·`PEXELS_API_KEY`가 비어 있어 추가 입력 필요.** (집 컴퓨터면 `.env.local`을 새로 만들어 6번 표대로 입력.)
 - 자세한 미완료는 아래 **3번** 참고.
 
 **집 컴퓨터에서 열면 바로 이 순서로**
@@ -38,7 +38,7 @@ npm run dev                          # http://localhost:3000 에서 확인
 ```bash
 npm run gen:story -- --file scripts/quotes.txt
 ```
-> 실행 전 `.env.local`에 `GEMINI_API_KEY` 필요. `scripts/quotes.txt`에 명언을 더 채운 뒤 실행 → 생성물 검토 → `npm run cache:images` → commit·push. (상세는 7번)
+> 실행 전 `.env.local`에 `OPENAI_API_KEY` 필요. `scripts/quotes.txt`에 명언을 더 채운 뒤 실행 → 생성물 검토 → `npm run cache:images` → commit·push. (상세는 7번)
 
 ---
 
@@ -83,11 +83,11 @@ npm run gen:story -- --file scripts/quotes.txt
 - 푸터에 광고·제휴/기타 문의 메일(tjwjdtjr11@naver.com)
 
 **매일 자동 글 생성** (GitHub Actions)
-- `.github/workflows/daily-stories.yml`: **매일 06:00 KST** Gemini로 이야기 생성 → 커밋 → Vercel 자동 배포. **컴퓨터 꺼져 있어도** GitHub 서버가 돌림. 수동 실행(workflow_dispatch)도 가능.
-- 모델 **`gemini-3-flash-preview`**(가성비). `scripts/generate-story.ts`에 **검증 게이트**: 명언 그대로 착지·작가 제목 확인·길이 검사 실패 시 재시도(3회), 그래도 실패면 **그 명언은 건너뜀**(이상한 글 발행 방지). 이미 쓴 명언은 skip → 매일 새 글.
-- 명언 풀 `scripts/quotes.txt`(형식 `명언 | 카테고리 | 작가`). 소진되면 여기에 계속 추가.
-- ⚠️ **1회 설정 필요**: GitHub 저장소 → Settings → Secrets and variables → Actions → `GEMINI_API_KEY` 등록(값은 Google AI Studio 키. Vercel 키는 Sensitive라 재사용 불가).
-- 로컬 수동 실행: `npm run gen:story -- --file scripts/quotes.txt --count 10` (로컬 `.env.local`에 `GEMINI_API_KEY` 필요).
+- `.github/workflows/daily-stories.yml`: **매일 06:00 KST** OpenAI로 이야기 생성 → 커밋 → Vercel 자동 배포. **컴퓨터 꺼져 있어도** GitHub 서버가 돌림. 수동 실행(workflow_dispatch)도 가능.
+- 모델 **`gpt-5.6-luna`**(OpenAI, 빠르고 저렴). `scripts/generate-story.ts`는 **제공자 스위치** 구조: `AI_PROVIDER=openai`(기본) / `gemini`. Gemini 호출 코드는 그대로 남겨둬 env 한 줄로 되돌리기 가능. **검증 게이트**: 명언 그대로 착지·작가 제목 확인·길이 검사 실패 시 재시도(3회), 그래도 실패면 **그 명언은 건너뜀**(이상한 글 발행 방지). 이미 쓴 명언은 skip → 매일 새 글.
+- 명언 풀 `scripts/quotes.txt`(형식 `명언 | 카테고리 | 작가`). 유명인 다양화 섹션 추가(기업가·과학자·작가·지도자·예술가·한국 위인). 소진되면 여기에 계속 추가.
+- ⚠️ **1회 설정 필요**: GitHub 저장소 → Settings → Secrets and variables → Actions → `OPENAI_API_KEY` 등록(값은 platform.openai.com/api-keys 키. Vercel 키는 Sensitive라 재사용 불가).
+- 로컬 수동 실행: `npm run gen:story -- --file scripts/quotes.txt --count 10` (로컬 `.env.local`에 `OPENAI_API_KEY` 필요).
 - 참고: 추상적·염세적 명언(예 쇼펜하우어 "시계추")은 모델이 딴 뜻으로 새서 검증 스킵됨 → 구체적 명언 위주로 채울 것.
 
 **방문자 카운터** (푸터)
@@ -112,7 +112,8 @@ npm run gen:story -- --file scripts/quotes.txt
 - [ ] **콘텐츠 4편** (`courage-mandela`, `effort-cheonrigil`, `longing-eomma-son`, `nietzsche-pain-stronger`) → 아직 적음, **계속 추가 필요.**
   - ⚠️ **Gemini(`gen:story`) 자동 생성은 품질 미달**: flash·pro 모두 추상적 철학 명언을 옛날이야기로 풀 때 명언을 딴 교훈으로 바꾸고 제목에 가짜 인물을 지어냄(검증 완료). → **자동 생성분은 반드시 사람이 검토, 또는 손으로 집필 권장.**
   - `nietzsche-pain-stronger`는 손으로 집필한 발행 품질 표본(명언 착지·작가·말투 정확). 이 방식으로 늘리는 걸 권장.
-- [ ] 로컬 환경변수 미설정: `GEMINI_API_KEY`, `YOUTUBE_API_KEY`, `PEXELS_API_KEY` 비어 있음 (Vercel엔 `PEXELS_API_KEY`, `NEXT_PUBLIC_SITE_URL` 설정됨)
+- [ ] 로컬 환경변수 미설정: `OPENAI_API_KEY`, `YOUTUBE_API_KEY`, `PEXELS_API_KEY` 비어 있음 (Vercel엔 `OPENAI_API_KEY`, `PEXELS_API_KEY`, `NEXT_PUBLIC_SITE_URL` 설정됨)
+- [ ] ⚠️ **GitHub Actions용 `OPENAI_API_KEY` 시크릿 등록** 필요(매일 자동 생성이 이 키로 돎). Vercel 키와 별개.
 - [ ] `data/youtube-songs.json`은 **RSS 최신 15편만** → API 키 넣고 전체 수집 권장
 - [ ] `coupangUrl` 전부 비어 있음 → 상품 링크 넣어야 배너 노출
 - [ ] 애드센스 미설정(`NEXT_PUBLIC_ADSENSE_CLIENT` 비어 있음, 승인 후 입력)
@@ -170,10 +171,10 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | 배포 주소(canonical/OG/sitemap) | 직접 지정 = `https://myeongeon.kr` |
 | `PEXELS_API_KEY` | 이미지 캐싱 | https://www.pexels.com/api/ (무료 가입 → API 키) |
-| `AI_PROVIDER` | 글 생성 제공자 선택 | 직접 지정 = `gemini` (기본) |
-| `GEMINI_API_KEY` | 글 생성(기본) | https://aistudio.google.com/apikey (Google AI Studio) |
-| `OPENAI_API_KEY` | 글 생성(선택) | https://platform.openai.com/api-keys |
-| `ANTHROPIC_API_KEY` | 글 생성(선택) | https://console.anthropic.com/ |
+| `AI_PROVIDER` | 글 생성 제공자 선택 | 직접 지정 = `openai` (기본) / `gemini` |
+| `OPENAI_API_KEY` | 글 생성(기본) | https://platform.openai.com/api-keys |
+| `OPENAI_MODEL` | 모델(선택, 기본 `gpt-5.6-luna`) | 직접 지정 |
+| `GEMINI_API_KEY` | 글 생성(선택, `AI_PROVIDER=gemini`일 때) | https://aistudio.google.com/apikey (Google AI Studio) |
 | `YOUTUBE_API_KEY` | 유튜브 전체 수집(없으면 RSS 폴백) | https://console.cloud.google.com/ → "YouTube Data API v3" 사용 설정 → 사용자 인증정보 → API 키 |
 | `NEXT_PUBLIC_KAKAO_JS_KEY` | 카카오 공유(선택) | https://developers.kakao.com/ → 내 앱 → 앱 키 → **JavaScript 키** |
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | 애드센스(승인 후) | https://www.google.com/adsense → 게시자 ID `ca-pub-...` |
@@ -205,12 +206,12 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 
 ## 8. 마지막 업데이트 · 최근 커밋
 
-- **마지막 업데이트**: 2026-07-30
+- **마지막 업데이트**: 2026-08-01
 - **현재 브랜치**: `main` (배포와 동기화됨)
 - **날짜별 작업 메모는 [`WORKLOG.md`](WORKLOG.md) 참고** (회사 등 다른 PC에서 이어작업용).
 - **최근 커밋** (최신 5개):
-  - `8fa69de` Add visitor counter (전체 방문 / 오늘) in the footer
-  - `b2965e1` Theme-based song↔story matching (fix mismatches) + add Tolstoy story
-  - `c8782f2` Add hand-written Nietzsche story; note Gemini auto-gen quality limits
-  - `2b2e2a3` Add Naver site verification meta tag
-  - `6161b98` Improve tone, content direction, song auto-linking, and SEO
+  - `01def05` chore: daily auto-generated stories (2026-07-31)
+  - `f02641d` chore: daily auto-generated stories (2026-07-30)
+  - `97af3fe` SEO: situational long-tail keywords, hub pages, and Korean tag-page fix
+  - `421ee12` Remove reading-time label ("약 1분") from the UI
+  - `1a73d9a` Expand quote pool for SEO/traffic topics; log today's automation work

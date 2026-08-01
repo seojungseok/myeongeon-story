@@ -11,9 +11,16 @@
  *
  * The prompt/tone lives in scripts/prompt-template.txt.
  *
+ * Provider: OpenAI by default (GPT-5.6 Luna). The Gemini path is kept intact so
+ * you can switch back later with a single env var (AI_PROVIDER=gemini) — no code
+ * change needed. Right now, with AI_PROVIDER unset, it runs on OpenAI only.
+ *
  * Env:
- *   GEMINI_API_KEY   required
- *   GEMINI_MODEL     default "gemini-3-flash-preview" (cost-effective)
+ *   AI_PROVIDER      "openai" (default) | "gemini"
+ *   OPENAI_API_KEY   required when AI_PROVIDER=openai
+ *   OPENAI_MODEL     default "gpt-5.6-luna" (fast, cost-efficient)
+ *   GEMINI_API_KEY   required when AI_PROVIDER=gemini
+ *   GEMINI_MODEL     default "gemini-3-flash-preview"
  *
  * Usage:
  *   npm run gen:story -- --quote "…" --author 니체 --category courage
@@ -27,7 +34,11 @@ import path from "node:path";
 const ROOT = process.cwd();
 loadEnvLocal();
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+// Provider switch — OpenAI now, Gemini kept for later (flip AI_PROVIDER).
+const PROVIDER = (process.env.AI_PROVIDER || "openai").toLowerCase();
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
+const GEMINI_MODEL_ID = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+const MODEL = PROVIDER === "gemini" ? GEMINI_MODEL_ID : OPENAI_MODEL;
 const TEMPLATE = fs.readFileSync(path.join(ROOT, "scripts", "prompt-template.txt"), "utf8");
 
 const args = parseArgs(process.argv.slice(2));
@@ -69,8 +80,12 @@ type Fields = {
 };
 
 async function main() {
-  if (!process.env.GEMINI_API_KEY) {
-    console.error("GEMINI_API_KEY is not set."); process.exit(1);
+  if (PROVIDER === "gemini") {
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY is not set."); process.exit(1);
+    }
+  } else if (!process.env.OPENAI_API_KEY) {
+    console.error("OPENAI_API_KEY is not set."); process.exit(1);
   }
 
   let jobs: Job[] = [];
@@ -94,7 +109,7 @@ async function main() {
   if (before !== jobs.length) console.log(`[gen] skip ${before - jobs.length} already-used quote(s).`);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  console.log(`[gen] model=${MODEL}  pool=${jobs.length}  target=${COUNT === Infinity ? "all" : COUNT}`);
+  console.log(`[gen] provider=${PROVIDER}  model=${MODEL}  pool=${jobs.length}  target=${COUNT === Infinity ? "all" : COUNT}`);
 
   let written = 0, skipped = 0;
   for (const job of jobs) {
@@ -137,7 +152,7 @@ async function generate(job: Job): Promise<Fields> {
     .replace("{{QUOTE}}", job.quote)
     .replace("{{AUTHOR}}", job.author)
     .replace("{{CATEGORY}}", job.category);
-  const raw = await callGemini(prompt);
+  const raw = await callModel(prompt);
   const j = extractJson(raw);
   return {
     category: String(j.category ?? "").trim(),
@@ -151,6 +166,31 @@ async function generate(job: Job): Promise<Fields> {
     photoKeyword: String(j.photoKeyword ?? "").trim(),
     description: String(j.description ?? "").trim(),
   };
+}
+
+/** Route to the active provider. OpenAI is the default; Gemini stays available. */
+async function callModel(prompt: string): Promise<string> {
+  return PROVIDER === "gemini" ? callGemini(prompt) : callOpenAI(prompt);
+}
+
+async function callOpenAI(prompt: string): Promise<string> {
+  const key = process.env.OPENAI_API_KEY as string;
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model: MODEL,
+      // GPT-5.6 uses max_completion_tokens (not max_tokens). Temperature is left
+      // at the model default — the GPT-5 line rejects custom values; story
+      // variety comes from the prompt and the diverse quote pool instead.
+      max_completion_tokens: 8192,
+      response_format: { type: "json_object" }, // prompt already asks for pure JSON
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content ?? "";
 }
 
 async function callGemini(prompt: string): Promise<string> {

@@ -55,6 +55,11 @@ export default function CategoryPage({
           itemListJsonLd(stories, { name: `${cat.label} 명언 이야기` }),
         ]}
       />
+      <nav className="font-sans text-sm text-subtle" aria-label="위치">
+        <Link href="/" className="hover:text-brand">홈</Link>
+        <span className="mx-1.5">/</span>
+        <span className="text-ink">{cat.label}</span>
+      </nav>
       <header>
         <p className="text-sm text-subtle">주제별 이야기</p>
         <h1 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">

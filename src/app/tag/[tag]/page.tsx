@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStoriesByTag } from "@/lib/content";
 import { breadcrumbJsonLd, itemListJsonLd, listMetadata } from "@/lib/seo";
@@ -45,6 +46,11 @@ export default function TagPage({ params }: { params: { tag: string } }) {
           itemListJsonLd(stories, { name: `${tag} 명언 이야기` }),
         ]}
       />
+      <nav className="font-sans text-sm text-subtle" aria-label="위치">
+        <Link href="/" className="hover:text-brand">홈</Link>
+        <span className="mx-1.5">/</span>
+        <span className="text-ink">#{tag}</span>
+      </nav>
       <header>
         <p className="text-sm text-subtle">태그</p>
         <h1 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">

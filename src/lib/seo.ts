@@ -29,6 +29,10 @@ export function storyMetadata(story: Story): Metadata {
       locale: site.locale,
       images: [{ url: ogImage, width: 1200, height: 630, alt: story.title }],
       publishedTime: story.createdAt,
+      modifiedTime: story.createdAt,
+      authors: [site.author],
+      section: categoryLabel(story.category),
+      tags: story.tags,
     },
     twitter: {
       card: "summary_large_image",

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "@/config/site";
 import { categoryLabel } from "@/config/categories";
@@ -18,6 +19,25 @@ import { collections } from "@/config/collections";
 
 // Static + daily revalidate: the random picks re-shuffle once a day, no per-request work.
 export const revalidate = 86400;
+
+// Home metadata — keyword-rich for Google/Naver. The <title> stays the branded
+// default from layout; here we strengthen the description and keywords.
+export const metadata: Metadata = {
+  description:
+    "명언 한 줄을 따뜻한 옛날이야기로 풀어내고 오늘의 교훈으로 마무리합니다. 인생·위로·용기·사랑·가족 등 주제별 명언 모음과 좋은 글귀, 위로가 되는 글을 매일 새로 만나보세요.",
+  keywords: [
+    "명언",
+    "명언 모음",
+    "좋은 글귀",
+    "명언 이야기",
+    "위로가 되는 글",
+    "인생 명언",
+    "오늘의 명언",
+    "삶이 힘들 때 읽는 글",
+    "마음이 힘들 때",
+  ],
+  alternates: { canonical: site.url },
+};
 
 /** Day index (UTC) — used to re-shuffle "추천" once per day, deterministically. */
 function daySeed(): number {
@@ -62,9 +82,14 @@ export default function HomePage() {
       {/* Compact hero + search */}
       <section className="text-center">
         <h1 className="font-serif text-3xl font-extrabold tracking-tight text-brand sm:text-4xl">
-          {site.name}
+          {site.name} — 명언 한 줄로 읽는 옛날이야기
         </h1>
-        <p className="mx-auto mt-2 font-serif text-subtle">{site.tagline}</p>
+        <p className="mx-auto mt-3 max-w-2xl font-serif leading-relaxed text-subtle">
+          니체·공자·노자부터 이름 모를 옛사람의 지혜까지, <strong className="font-bold text-ink">명언 한 줄</strong>을
+          할머니가 들려주듯 따뜻한 이야기로 풀어냅니다. 인생·위로·용기·사랑·가족 등
+          주제별 <strong className="font-bold text-ink">명언 모음</strong>과
+          위로가 되는 좋은 글귀를 매일 새로 만나보세요.
+        </p>
         <div className="mx-auto mt-5 max-w-xl">
           <SearchBar />
         </div>

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStoriesByTag } from "@/lib/content";
-import { breadcrumbJsonLd, listMetadata } from "@/lib/seo";
-import { StoryGrid } from "@/components/StoryCard";
+import { breadcrumbJsonLd, itemListJsonLd, listMetadata } from "@/lib/seo";
+import { StoryList } from "@/components/StoryList";
+import { toListItems } from "@/lib/story-list";
 import { JsonLd } from "@/components/JsonLd";
 
 // Tags are Korean, and Next's static-route matching doesn't reliably match
@@ -36,10 +37,13 @@ export default function TagPage({ params }: { params: { tag: string } }) {
   return (
     <div className="container-wide space-y-8">
       <JsonLd
-        data={breadcrumbJsonLd([
-          { name: "홈", url: "/" },
-          { name: `#${tag}`, url: `/tag/${encodeURIComponent(tag)}` },
-        ])}
+        data={[
+          breadcrumbJsonLd([
+            { name: "홈", url: "/" },
+            { name: `#${tag}`, url: `/tag/${encodeURIComponent(tag)}` },
+          ]),
+          itemListJsonLd(stories, { name: `${tag} 명언 이야기` }),
+        ]}
       />
       <header>
         <p className="text-sm text-subtle">태그</p>
@@ -48,7 +52,7 @@ export default function TagPage({ params }: { params: { tag: string } }) {
         </h1>
         <p className="mt-2 text-subtle">이야기 {stories.length}편</p>
       </header>
-      <StoryGrid stories={stories} />
+      <StoryList stories={toListItems(stories)} />
     </div>
   );
 }

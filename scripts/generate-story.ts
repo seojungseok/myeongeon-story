@@ -136,7 +136,7 @@ async function generateValid(job: Job): Promise<Fields | null> {
       const core = norm(quoteCore(job.quote));
       const quoteLanded = norm(f.story).includes(core);
       const authorOk = !job.author || norm(f.title).includes(norm(job.author));
-      const lenOk = f.story.length >= 450 && f.story.length <= 1300;
+      const lenOk = f.story.length >= 700 && f.story.length <= 2400;
       if (quoteLanded && authorOk && lenOk && f.title && f.lesson && f.todayAction) return f;
       console.warn(`    · attempt ${attempt} invalid (quote:${quoteLanded} author:${authorOk} len:${lenOk})`);
     } catch (e) {

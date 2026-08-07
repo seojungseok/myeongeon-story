@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { categoryLabel } from "@/config/categories";
 import { SearchBar } from "./SearchBar";
+import { StoryRow } from "./StoryList";
 
 export type SearchIndexItem = {
   id: string;
@@ -59,41 +57,15 @@ export function SearchClient({ index }: { index: SearchIndexItem[] }) {
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {results.map((it) => (
-          <Link
-            key={it.id}
-            href={`/story/${it.id}`}
-            className="card group overflow-hidden"
-          >
-            <div className="relative aspect-[16/9] w-full overflow-hidden bg-brand-tint">
-              {it.image && (
-                <Image
-                  src={it.image}
-                  alt={it.title}
-                  fill
-                  sizes="(max-width:768px) 100vw, 400px"
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                />
-              )}
-              <span className="absolute left-3 top-3 rounded-full bg-black/45 px-2.5 py-1 text-xs font-medium text-white">
-                {categoryLabel(it.category)}
-              </span>
-            </div>
-            <div className="p-5">
-              <h3 className="text-lg font-bold leading-snug text-ink group-hover:text-brand">
-                {it.title}
-              </h3>
-              <p className="mt-2 line-clamp-2 text-[0.95rem] italic text-subtle">
-                &ldquo;{it.quote}&rdquo;
-              </p>
-              <div className="mt-3 text-xs text-subtle">
-                {it.createdAt}
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {results.length > 0 && (
+        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white/60">
+          {results.map((it) => (
+            <li key={it.id}>
+              <StoryRow story={it} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { collections, getCollection } from "@/config/collections";
 import { getStoriesForCollection } from "@/lib/content";
-import { breadcrumbJsonLd, listMetadata } from "@/lib/seo";
-import { StoryGrid } from "@/components/StoryCard";
+import { breadcrumbJsonLd, itemListJsonLd, listMetadata } from "@/lib/seo";
+import { StoryList } from "@/components/StoryList";
+import { toListItems } from "@/lib/story-list";
 import { JsonLd } from "@/components/JsonLd";
 
 export const dynamicParams = false;
@@ -38,10 +39,13 @@ export default function CollectionPage({ params }: { params: { slug: string } })
   return (
     <div className="container-wide space-y-8">
       <JsonLd
-        data={breadcrumbJsonLd([
-          { name: "홈", url: "/" },
-          { name: c.title, url: `/read/${c.slug}` },
-        ])}
+        data={[
+          breadcrumbJsonLd([
+            { name: "홈", url: "/" },
+            { name: c.title, url: `/read/${c.slug}` },
+          ]),
+          itemListJsonLd(stories, { name: c.title }),
+        ]}
       />
 
       <header>
@@ -52,13 +56,10 @@ export default function CollectionPage({ params }: { params: { slug: string } })
         <p className="mt-2 max-w-2xl text-subtle">{c.lead}</p>
       </header>
 
-      {stories.length > 0 ? (
-        <StoryGrid stories={stories} />
-      ) : (
-        <p className="rounded-2xl border border-line bg-white/60 px-5 py-10 text-center text-subtle">
-          곧 이야기가 채워집니다.
-        </p>
-      )}
+      <StoryList
+        stories={toListItems(stories)}
+        emptyText="곧 이야기가 채워집니다."
+      />
 
       {/* Cross-links to the other hubs — internal linking + long-tail coverage */}
       <section className="border-t border-line pt-8">

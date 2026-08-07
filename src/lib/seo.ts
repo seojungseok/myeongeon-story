@@ -120,6 +120,30 @@ export function quotationJsonLd(story: Story) {
   };
 }
 
+/**
+ * ItemList structured data for list-type pages (category/tag/collection/all).
+ * Helps Google understand the page as a curated list of articles and can earn
+ * a richer, more prominent SERP treatment. Capped so the payload stays small.
+ */
+export function itemListJsonLd(
+  stories: Story[],
+  opts?: { name?: string; limit?: number },
+) {
+  const limit = opts?.limit ?? 50;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    ...(opts?.name ? { name: opts.name } : {}),
+    numberOfItems: stories.length,
+    itemListElement: stories.slice(0, limit).map((s, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: absUrl(`/story/${s.id}`),
+      name: s.title,
+    })),
+  };
+}
+
 export function articleJsonLd(story: Story) {
   return {
     "@context": "https://schema.org",

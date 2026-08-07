@@ -79,16 +79,20 @@ export default function HomePage() {
       {/* Category bar with edge arrows */}
       <CategoryBar />
 
-      {/* Compact hero + search */}
+      {/* Compact hero + search — clear size hierarchy so mobile isn't crowded */}
       <section className="text-center">
-        <h1 className="font-serif text-3xl font-extrabold tracking-tight text-brand sm:text-4xl">
-          {site.name} — 명언 한 줄로 읽는 옛날이야기
+        <h1 className="font-serif tracking-tight text-brand">
+          <span className="block text-[2rem] font-extrabold leading-tight sm:text-4xl">
+            {site.name}
+          </span>
+          <span className="mt-1.5 block text-base font-bold leading-snug text-ink sm:text-xl">
+            명언 한 줄로 읽는 옛날이야기
+          </span>
         </h1>
-        <p className="mx-auto mt-3 max-w-2xl font-serif leading-relaxed text-subtle">
-          니체·공자·노자부터 이름 모를 옛사람의 지혜까지, <strong className="font-bold text-ink">명언 한 줄</strong>을
-          할머니가 들려주듯 따뜻한 이야기로 풀어냅니다. 인생·위로·용기·사랑·가족 등
-          주제별 <strong className="font-bold text-ink">명언 모음</strong>과
-          위로가 되는 좋은 글귀를 매일 새로 만나보세요.
+        <p className="mx-auto mt-3 max-w-xl px-2 font-sans text-[0.85rem] leading-relaxed text-subtle sm:text-sm">
+          니체·공자·노자부터 이름 모를 옛사람의 지혜까지, 명언 한 줄을 할머니가
+          들려주듯 따뜻한 이야기로 풀어냅니다. 인생·위로·용기·사랑·가족 등 주제별
+          명언 모음과 위로가 되는 좋은 글귀를 매일 새로 만나보세요.
         </p>
         <div className="mx-auto mt-5 max-w-xl">
           <SearchBar />

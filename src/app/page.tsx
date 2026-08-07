@@ -89,7 +89,7 @@ export default function HomePage() {
             명언 한 줄로 읽는 옛날이야기
           </span>
         </h1>
-        <p className="mx-auto mt-3 max-w-xl px-2 font-sans text-[0.85rem] leading-relaxed text-subtle sm:text-sm">
+        <p className="mx-auto mt-3 max-w-xl px-2 font-sans text-[0.85rem] leading-relaxed text-subtle break-keep text-pretty sm:text-sm">
           니체·공자·노자부터 이름 모를 옛사람의 지혜까지, 명언 한 줄을 할머니가
           들려주듯 따뜻한 이야기로 풀어냅니다. 인생·위로·용기·사랑·가족 등 주제별
           명언 모음과 위로가 되는 좋은 글귀를 매일 새로 만나보세요.

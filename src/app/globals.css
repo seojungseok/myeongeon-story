@@ -33,6 +33,8 @@ body {
   h3 {
     font-family: theme("fontFamily.serif");
     letter-spacing: -0.01em;
+    /* Korean: never split a word across lines (막지 "이야/기로" 같은 어색한 줄바꿈). */
+    word-break: keep-all;
   }
   /* Selection in a warm sepia. */
   ::selection {

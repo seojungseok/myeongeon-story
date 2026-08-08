@@ -7,6 +7,10 @@ name: Daily auto-generated stories
 # "진짜" 명언을 새로 골라옵니다(이미 쓴 명언은 자동 제외). 목록이 소진될 일이 없어
 # 매일 계속 생성됩니다. scripts/quotes.txt를 다시 채울 필요가 없습니다.
 #
+# --focus: 특정 테마로 집중 생성. 현재는 관심 높은 "그리움·사랑·이별(헤어짐)"을
+# 우선 채우는 중(FOCUS 기본값 longing,love). 충분히 쌓이면 아래 FOCUS를 빈 값으로
+# 두면 다시 전체 주제로 다양하게 생성됩니다. 수동 실행 시 focus 칸으로 그때그때 지정 가능.
+#
 # 사전 설정 (1회):
 #   GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
 #     Name: OPENAI_API_KEY   Value: (platform.openai.com/api-keys 에서 발급)
@@ -19,8 +23,11 @@ on:
   workflow_dispatch: # 수동 실행 버튼도 제공
     inputs:
       count:
-        description: "생성할 이야기 수 (하루 기본 5)"
+        description: "생성할 이야기 수 (하루 기본 5, 대량 채우기는 40~60 권장)"
         default: "5"
+      focus:
+        description: "집중 테마 슬러그(쉼표구분, 예: longing,love). 비우면 전체 주제"
+        default: "longing,love"
 
 permissions:
   contents: write
@@ -47,7 +54,12 @@ jobs:
           AI_PROVIDER: openai
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
-        run: npm run gen:story -- --auto --count ${{ github.event.inputs.count || '5' }}
+        run: |
+          ARGS="--auto --count ${{ github.event.inputs.count || '5' }}"
+          FOCUS="${{ github.event.inputs.focus || 'longing,love' }}"
+          if [ -n "$FOCUS" ]; then ARGS="$ARGS --focus $FOCUS"; fi
+          echo "running: gen:story -- $ARGS"
+          npm run gen:story -- $ARGS
 
       - name: Commit & push if there are new stories
         run: |

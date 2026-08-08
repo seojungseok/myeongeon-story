@@ -27,8 +27,12 @@
  *
  * Usage:
  *   npm run gen:story -- --auto --count 5                       # daily batch (self-sourcing)
+ *   npm run gen:story -- --auto --count 40 --focus longing,love # theme-focused fill
  *   npm run gen:story -- --quote "…" --author 니체 --category courage
  *   npm run gen:story -- --file scripts/quotes.txt --count 10   # from a static list
+ *
+ * --focus <slugs|labels>  restrict AUTO to given themes (comma-separated). Slugs
+ *   or Korean labels both work; "이별"/"헤어짐" map to 그리움(longing).
  *
  * quotes.txt line format:  명언 | 카테고리슬러그 | 작가   (뒤 두 개는 생략 가능)
  */
@@ -68,6 +72,22 @@ function normalizeCategory(v: string): string {
   if (SLUGS.has(t)) return t;
   return CATEGORY_MAP[t] || t || "life";
 }
+/** Korean label for a slug (reverse of CATEGORY_MAP), for prompt text. */
+function slugLabel(slug: string): string {
+  return Object.entries(CATEGORY_MAP).find(([, v]) => v === slug)?.[0] || slug;
+}
+
+// --focus: restrict AUTO sourcing to given themes (slugs or Korean labels).
+// "이별"/"헤어짐"/"breakup" are not a category — they map to 그리움(longing).
+function resolveFocus(raw: string): string[] {
+  const out = new Set<string>();
+  for (const tok of raw.split(",").map((t) => t.trim()).filter(Boolean)) {
+    if (/^(breakup|이별|헤어짐|parting)$/i.test(tok)) out.add("longing");
+    else out.add(normalizeCategory(tok));
+  }
+  return [...out];
+}
+const FOCUS: string[] = typeof args.focus === "string" ? resolveFocus(args.focus) : [];
 
 // ── text helpers for validation ─────────────────────────────────────────────
 /** Strip whitespace/quotes/punctuation and NFC-normalize, for robust Korean compares. */
@@ -122,7 +142,8 @@ async function main() {
   if (before !== jobs.length) console.log(`[gen] skip ${before - jobs.length} already-used quote(s).`);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  console.log(`[gen] provider=${PROVIDER}  model=${MODEL}  pool=${jobs.length}  target=${COUNT === Infinity ? "all" : COUNT}`);
+  const focusNote = FOCUS.length ? `  focus=${FOCUS.join(",")}` : "";
+  console.log(`[gen] provider=${PROVIDER}  model=${MODEL}  pool=${jobs.length}  target=${COUNT === Infinity ? "all" : COUNT}${focusNote}`);
 
   let written = 0, skipped = 0;
   for (const job of jobs) {
@@ -287,7 +308,19 @@ async function autoJobs(target: number, used: Set<string>): Promise<Job[]> {
 
 /** Ask the model for `n` real, well-known quotes by real people, avoiding `avoid`. */
 async function proposeQuotes(n: number, avoid: string[]): Promise<Job[]> {
-  const slugList = Object.entries(CATEGORY_MAP).map(([k, v]) => `${k}=${v}`).join(", ");
+  const focused = FOCUS.length > 0;
+  // When focusing, only offer the focus slugs and steer the theme explicitly.
+  const slugPairs = focused
+    ? Object.entries(CATEGORY_MAP).filter(([, v]) => FOCUS.includes(v))
+    : Object.entries(CATEGORY_MAP);
+  const slugList = slugPairs.map(([k, v]) => `${k}=${v}`).join(", ");
+  const focusLabels = FOCUS.map(slugLabel).join("·");
+  const breakup = FOCUS.includes("longing") || FOCUS.includes("love")
+    ? ", 이별·헤어짐·재회·첫사랑·짝사랑·사무치는 그리움 등"
+    : "";
+  const themeLine = focused
+    ? `\n- ⭐ 주제는 반드시 "${focusLabels}"${breakup} 정서 계열의 명언만 고른다. 이 정서와 무관하면 제외.`
+    : "";
   const avoidBlock = avoid.length
     ? `\n\n【이미 사용한 명언 — 아래와 같거나 의미가 겹치면 절대 제외】\n${avoid.map((q) => `- ${q}`).join("\n")}`
     : "";
@@ -295,9 +328,9 @@ async function proposeQuotes(n: number, avoid: string[]): Promise<Job[]> {
 
 규칙:
 - 반드시 실재하고 널리 알려진, 출처가 분명한 명언만 쓴다. 지어내지 말 것. 조금이라도 불확실하면 제외.
-- 위인·철학자·작가·과학자·예술가·기업가·역사적 인물 등 유명 인물 중심으로, 저자·시대·문화가 골고루 섞이게.
+- 위인·철학자·작가·시인·과학자·예술가·기업가·역사적 인물 등 유명 인물 중심으로, 저자·시대·문화가 골고루 섞이게.
 - 한국어로 쓴다. 외국어 원문은 자연스러운 한국어 번역으로.
-- 각 명언에 가장 잘 맞는 카테고리 슬러그 하나를 지정한다. 슬러그 목록: ${slugList}
+- 각 명언에 가장 잘 맞는 카테고리 슬러그 하나를 지정한다. 슬러그 목록: ${slugList}${themeLine}
 - 짧고 인상적인 한 줄(1~2문장) 위주로.${avoidBlock}
 
 순수 JSON만 출력(설명·코드블록 금지):
@@ -306,11 +339,16 @@ async function proposeQuotes(n: number, avoid: string[]): Promise<Job[]> {
   const obj = extractJson(raw);
   const arr = Array.isArray((obj as any).quotes) ? (obj as any).quotes : [];
   return arr
-    .map((x: any) => ({
-      quote: String(x?.quote ?? "").trim(),
-      author: String(x?.author ?? "").trim(),
-      category: normalizeCategory(String(x?.category ?? "life")),
-    }))
+    .map((x: any) => {
+      let category = normalizeCategory(String(x?.category ?? "life"));
+      // Keep focused runs on-theme even if the model drifts off the slug list.
+      if (focused && !FOCUS.includes(category)) category = FOCUS[0];
+      return {
+        quote: String(x?.quote ?? "").trim(),
+        author: String(x?.author ?? "").trim(),
+        category,
+      };
+    })
     .filter((j: Job) => j.quote);
 }
 

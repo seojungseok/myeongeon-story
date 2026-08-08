@@ -101,6 +101,7 @@ npm run gen:story -- --file scripts/quotes.txt
 - ⭐ **AUTO 모드(`--auto`) — 명언 풀 소진 문제 해결(2026-08-08)**: 예전엔 `scripts/quotes.txt`의 고정 목록에서만 골라 써서 **목록이 다 떨어지면(08-05에 소진) 매일 실행돼도 새 글이 0개**였음. 이제 워크플로가 `--auto --count 5`로 돌며 **AI가 매 실행마다 실존 유명 인물의 "진짜" 명언을 직접 골라옴**(`proposeQuotes`/`autoJobs` in [generate-story.ts](scripts/generate-story.ts)). 목록을 다시 채울 필요가 없어 **수백·수천 편으로 계속 확장**. 프롬프트에 "실재·출처 분명한 명언만, 불확실하면 제외" 강제.
 - **중복 방지 2중 장치**: (1) 이미 쓴 명언 목록을 제안 프롬프트에 "제외 목록"으로 전달, (2) 생성 후 `norm()` 정규화 비교로 기존 스토리·같은 배치와 겹치면 드롭. 검증 통과분이 부족하면 최대 4라운드까지 추가 제안(목표의 3배를 버퍼로 수집).
 - 모델 **`gpt-5.6-luna`**(OpenAI, 빠르고 저렴). `scripts/generate-story.ts`는 **제공자 스위치** 구조: `AI_PROVIDER=openai`(기본) / `gemini`. Gemini 호출 코드는 그대로 남겨둬 env 한 줄로 되돌리기 가능. **검증 게이트**: 명언 그대로 착지·작가 제목 확인·길이 검사 실패 시 재시도(3회), 그래도 실패면 **그 명언은 건너뜀**(이상한 글 발행 방지).
+- **테마 집중(`--focus`) 옵션(2026-08-08)**: `--focus longing,love`처럼 슬러그/한글 라벨(쉼표구분)을 주면 그 테마 명언만 골라옴("이별"/"헤어짐"→그리움(longing)으로 매핑). 현재 워크플로 기본값 `focus=longing,love`로 **관심 높은 "그리움·사랑·이별"을 우선 채우는 중**(이별·재회·첫사랑·짝사랑 정서 포함). 충분히 쌓이면 워크플로 run 스텝의 `FOCUS` 기본값을 빈 값으로 바꾸면 전체 주제로 복귀. 수동 실행 시 `focus`/`count` 칸으로 그때그때 지정(대량 채우기는 count 40~60).
 - `scripts/quotes.txt`는 이제 **선택 사항**(수동 `--file` 실행용으로만 남김). AUTO 모드는 이 파일을 쓰지 않음.
 - ⚠️ **1회 설정 필요**: GitHub 저장소 → Settings → Secrets and variables → Actions → `OPENAI_API_KEY` 등록(값은 platform.openai.com/api-keys 키. Vercel 키는 Sensitive라 재사용 불가).
 - 로컬 수동 실행: `npm run gen:story -- --auto --count 5` (로컬 `.env.local`에 `OPENAI_API_KEY` 필요).

@@ -7,9 +7,12 @@ name: Daily auto-generated stories
 # "진짜" 명언을 새로 골라옵니다(이미 쓴 명언은 자동 제외). 목록이 소진될 일이 없어
 # 매일 계속 생성됩니다. scripts/quotes.txt를 다시 채울 필요가 없습니다.
 #
-# --focus: 특정 테마로 집중 생성. 현재는 관심 높은 "그리움·사랑·이별(헤어짐)"을
-# 우선 채우는 중(FOCUS 기본값 longing,love). 충분히 쌓이면 아래 FOCUS를 빈 값으로
-# 두면 다시 전체 주제로 다양하게 생성됩니다. 수동 실행 시 focus 칸으로 그때그때 지정 가능.
+# 단계별 자동(2026-08-08):
+#   1단계 — "그리움·사랑·이별(헤어짐)"이 100편 될 때까지 매일 10편씩 집중 생성.
+#   2단계 — 100편을 채우면 자동으로 매일 5편, 전체 주제 골고루로 전환.
+#   판단 기준: src/content/stories 안의 longing+love 글 수(사람 손 없이 자동 전환).
+# 하루 1회(아침 6시)만 몰아서 생성 → 커밋·배포 1회(Vercel 한도 절약, 홈은 어차피 하루 1회 갱신).
+# 수동 실행 시 count/focus로 그때그때 덮어쓸 수 있음.
 #
 # 사전 설정 (1회):
 #   GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
@@ -23,11 +26,11 @@ on:
   workflow_dispatch: # 수동 실행 버튼도 제공
     inputs:
       count:
-        description: "생성할 이야기 수 (하루 기본 5, 대량 채우기는 40~60 권장)"
-        default: "5"
+        description: "생성 편수 (비우면 자동: 채우는 중 10, 이후 5)"
+        default: ""
       focus:
-        description: "집중 테마 슬러그(쉼표구분, 예: longing,love). 비우면 전체 주제"
-        default: "longing,love"
+        description: "집중 테마 (auto=단계자동, none=전체주제, 예: longing,love)"
+        default: "auto"
 
 permissions:
   contents: write
@@ -49,17 +52,48 @@ jobs:
 
       - run: npm ci
 
+      # Decide today's batch from how many themed stories already exist:
+      #  - phase 1 (longing+love < 100): 10 stories, focus=longing,love
+      #  - phase 2 (>= 100):             5 stories, all themes
+      # Manual dispatch inputs override: count=<n>, focus=none(전체)/<slugs>.
+      - name: Plan today's batch
+        id: plan
+        env:
+          IN_COUNT: ${{ github.event.inputs.count }}
+          IN_FOCUS: ${{ github.event.inputs.focus }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const dir = "src/content/stories";
+            let themed = 0;
+            for (const f of fs.readdirSync(dir)) {
+              if (!/\.json$/.test(f)) continue;
+              try {
+                const c = JSON.parse(fs.readFileSync(dir + "/" + f, "utf8")).category;
+                if (c === "longing" || c === "love") themed++;
+              } catch {}
+            }
+            const TARGET = 100;
+            const filling = themed < TARGET;
+            const inCount = (process.env.IN_COUNT || "").trim();
+            const inFocus = (process.env.IN_FOCUS || "").trim();
+            const count = inCount || (filling ? "10" : "5");
+            let focus;
+            if (inFocus === "" || inFocus === "auto") focus = filling ? "longing,love" : "";
+            else if (inFocus === "none") focus = "";
+            else focus = inFocus;
+            let args = "--auto --count " + count;
+            if (focus) args += " --focus " + focus;
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "args=" + args + "\n");
+            console.log(`themed(longing+love)=${themed}/${TARGET} filling=${filling} → gen:story -- ${args}`);
+          '
+
       - name: Generate stories
         env:
           AI_PROVIDER: openai
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
-        run: |
-          ARGS="--auto --count ${{ github.event.inputs.count || '5' }}"
-          FOCUS="${{ github.event.inputs.focus || 'longing,love' }}"
-          if [ -n "$FOCUS" ]; then ARGS="$ARGS --focus $FOCUS"; fi
-          echo "running: gen:story -- $ARGS"
-          npm run gen:story -- $ARGS
+        run: npm run gen:story -- ${{ steps.plan.outputs.args }}
 
       - name: Commit & push if there are new stories
         run: |
@@ -71,5 +105,5 @@ jobs:
             git push
             echo "pushed new stories."
           else
-            echo "no new stories (pool may be exhausted — add more to scripts/quotes.txt)."
+            echo "no new stories this run (model found no fresh valid quotes; will retry next run)."
           fi

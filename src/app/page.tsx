@@ -7,7 +7,7 @@ import {
   getPopularStories,
   getRecentStories,
 } from "@/lib/content";
-import { getTodayPicks } from "@/lib/today";
+import { getTodayQuote } from "@/lib/today";
 import type { Story } from "@/lib/types";
 import { StoryImage } from "@/components/StoryImage";
 import { StoryCard } from "@/components/StoryCard";
@@ -68,11 +68,14 @@ export default function HomePage() {
   // 1) 추천(랜덤): recommended stories (by viewWeight), shuffled daily.
   const recommended = seededShuffle(getPopularStories(8), daySeed()).slice(0, 5);
 
-  // 2) 오늘의 명언: just one, date-based.
-  const todayQuote = getTodayPicks().quote ?? all[0];
-
   // 3) 최신글: 6 in a slider, rest via 더보기 → /stories.
   const latest = getRecentStories(6);
+
+  // 2) 오늘의 명언: daily rotation, skipping anything already shown above so the
+  // same story never appears twice on the home screen.
+  const todayQuote =
+    getTodayQuote([...recommended.map((s) => s.id), ...latest.map((s) => s.id)]) ??
+    all[0];
 
   return (
     <div className="container-wide space-y-12">

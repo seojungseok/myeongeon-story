@@ -58,3 +58,50 @@ export function getTodayPicks(seed = daySeed()): TodayPicks {
 export function getRandomStoryId(seed = Date.now()): string | undefined {
   return seededPick(getAllStories(), seed)?.id;
 }
+
+/** Small stable hash of a string (FNV-1a) → fixed order per story id. */
+function idHash(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * "오늘의 명언" — a deterministic DAILY ROTATION through the whole catalog.
+ *
+ * Better than a seeded random pick: random collisions make some quotes reappear
+ * at uneven, short intervals while others rarely show. Rotation steps one story
+ * per day through a stable order, so every quote gets its turn, the same one
+ * never lands two days running, and the catalog is covered evenly. It stays
+ * deterministic (no DB, no per-request work) so the page is still SSG + daily
+ * revalidate. `exclude` lets the homepage skip any story already shown in the
+ * 추천/최신글 sections that day, so nothing appears twice on one screen.
+ */
+export function getTodayQuote(
+  exclude: Iterable<string | undefined> = [],
+  seed = daySeed(),
+): Story | undefined {
+  const all = getAllStories();
+  if (all.length === 0) return undefined;
+
+  // Stable order that barely shifts when new stories are added (sort by a hash
+  // of the id, not by date/position), so the daily rotation stays smooth.
+  const ordered = [...all].sort(
+    (a, b) => idHash(a.id) - idHash(b.id) || a.id.localeCompare(b.id),
+  );
+  const n = ordered.length;
+  const start = ((seed % n) + n) % n; // step once per day
+
+  const ex = new Set<string>();
+  for (const id of exclude) if (id) ex.add(id);
+
+  // Walk forward from today's slot, skipping anything already shown elsewhere.
+  for (let i = 0; i < n; i++) {
+    const cand = ordered[(start + i) % n];
+    if (!ex.has(cand.id)) return cand;
+  }
+  return ordered[start]; // everything excluded (tiny catalog) — show today's slot
+}

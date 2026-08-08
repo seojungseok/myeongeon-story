@@ -3,6 +3,10 @@ name: Daily auto-generated stories
 # 매일 새 이야기를 OpenAI(GPT-5.6 Luna)로 생성해 커밋 → Vercel 자동 배포.
 # 컴퓨터가 꺼져 있어도 GitHub 서버에서 실행됩니다.
 #
+# --auto 모드: 명언 목록 파일에 의존하지 않고, AI가 매 실행마다 실존 유명 인물의
+# "진짜" 명언을 새로 골라옵니다(이미 쓴 명언은 자동 제외). 목록이 소진될 일이 없어
+# 매일 계속 생성됩니다. scripts/quotes.txt를 다시 채울 필요가 없습니다.
+#
 # 사전 설정 (1회):
 #   GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
 #     Name: OPENAI_API_KEY   Value: (platform.openai.com/api-keys 에서 발급)
@@ -15,8 +19,8 @@ on:
   workflow_dispatch: # 수동 실행 버튼도 제공
     inputs:
       count:
-        description: "생성할 이야기 수"
-        default: "10"
+        description: "생성할 이야기 수 (하루 기본 5)"
+        default: "5"
 
 permissions:
   contents: write
@@ -43,7 +47,7 @@ jobs:
           AI_PROVIDER: openai
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
-        run: npm run gen:story -- --file scripts/quotes.txt --count ${{ github.event.inputs.count || '10' }}
+        run: npm run gen:story -- --auto --count ${{ github.event.inputs.count || '5' }}
 
       - name: Commit & push if there are new stories
         run: |

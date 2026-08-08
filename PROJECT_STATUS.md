@@ -97,12 +97,14 @@ npm run gen:story -- --file scripts/quotes.txt
 - 푸터에 광고·제휴/기타 문의 메일(tjwjdtjr11@naver.com)
 
 **매일 자동 글 생성** (GitHub Actions)
-- `.github/workflows/daily-stories.yml`: **매일 06:00 KST** OpenAI로 이야기 생성 → 커밋 → Vercel 자동 배포. **컴퓨터 꺼져 있어도** GitHub 서버가 돌림. 수동 실행(workflow_dispatch)도 가능.
-- 모델 **`gpt-5.6-luna`**(OpenAI, 빠르고 저렴). `scripts/generate-story.ts`는 **제공자 스위치** 구조: `AI_PROVIDER=openai`(기본) / `gemini`. Gemini 호출 코드는 그대로 남겨둬 env 한 줄로 되돌리기 가능. **검증 게이트**: 명언 그대로 착지·작가 제목 확인·길이 검사 실패 시 재시도(3회), 그래도 실패면 **그 명언은 건너뜀**(이상한 글 발행 방지). 이미 쓴 명언은 skip → 매일 새 글.
-- 명언 풀 `scripts/quotes.txt`(형식 `명언 | 카테고리 | 작가`). 유명인 다양화 섹션 추가(기업가·과학자·작가·지도자·예술가·한국 위인). 소진되면 여기에 계속 추가.
+- `.github/workflows/daily-stories.yml`: **매일 06:00 KST** OpenAI로 이야기 생성 → 커밋 → Vercel 자동 배포. **컴퓨터 꺼져 있어도** GitHub 서버가 돌림. 수동 실행(workflow_dispatch)도 가능. **하루 5편**(기본).
+- ⭐ **AUTO 모드(`--auto`) — 명언 풀 소진 문제 해결(2026-08-08)**: 예전엔 `scripts/quotes.txt`의 고정 목록에서만 골라 써서 **목록이 다 떨어지면(08-05에 소진) 매일 실행돼도 새 글이 0개**였음. 이제 워크플로가 `--auto --count 5`로 돌며 **AI가 매 실행마다 실존 유명 인물의 "진짜" 명언을 직접 골라옴**(`proposeQuotes`/`autoJobs` in [generate-story.ts](scripts/generate-story.ts)). 목록을 다시 채울 필요가 없어 **수백·수천 편으로 계속 확장**. 프롬프트에 "실재·출처 분명한 명언만, 불확실하면 제외" 강제.
+- **중복 방지 2중 장치**: (1) 이미 쓴 명언 목록을 제안 프롬프트에 "제외 목록"으로 전달, (2) 생성 후 `norm()` 정규화 비교로 기존 스토리·같은 배치와 겹치면 드롭. 검증 통과분이 부족하면 최대 4라운드까지 추가 제안(목표의 3배를 버퍼로 수집).
+- 모델 **`gpt-5.6-luna`**(OpenAI, 빠르고 저렴). `scripts/generate-story.ts`는 **제공자 스위치** 구조: `AI_PROVIDER=openai`(기본) / `gemini`. Gemini 호출 코드는 그대로 남겨둬 env 한 줄로 되돌리기 가능. **검증 게이트**: 명언 그대로 착지·작가 제목 확인·길이 검사 실패 시 재시도(3회), 그래도 실패면 **그 명언은 건너뜀**(이상한 글 발행 방지).
+- `scripts/quotes.txt`는 이제 **선택 사항**(수동 `--file` 실행용으로만 남김). AUTO 모드는 이 파일을 쓰지 않음.
 - ⚠️ **1회 설정 필요**: GitHub 저장소 → Settings → Secrets and variables → Actions → `OPENAI_API_KEY` 등록(값은 platform.openai.com/api-keys 키. Vercel 키는 Sensitive라 재사용 불가).
-- 로컬 수동 실행: `npm run gen:story -- --file scripts/quotes.txt --count 10` (로컬 `.env.local`에 `OPENAI_API_KEY` 필요).
-- 참고: 추상적·염세적 명언(예 쇼펜하우어 "시계추")은 모델이 딴 뜻으로 새서 검증 스킵됨 → 구체적 명언 위주로 채울 것.
+- 로컬 수동 실행: `npm run gen:story -- --auto --count 5` (로컬 `.env.local`에 `OPENAI_API_KEY` 필요).
+- ⚠️ AUTO 모드는 AI가 명언을 직접 고르므로 **드물게 출처·인물이 부정확할 수 있음** → 신뢰성이 중요하면 생성분을 가끔 점검 권장.
 
 **방문자 카운터** (푸터)
 - `전체 방문 · 오늘` 표시. `src/app/api/visit/route.ts` + `src/components/VisitCounter.tsx`.
@@ -170,7 +172,7 @@ npm run build          # 프로덕션 빌드 (prebuild가 cache:images 자동 �
 npm run start          # 빌드 결과 실행
 npm run lint           # 린트
 npm run cache:images   # Pexels 이미지 빌드 전 캐싱 (--force 로 재캐싱)
-npm run gen:story      # AI 글 생성 (예: -- --file scripts/quotes.txt)
+npm run gen:story      # AI 글 생성 (매일 자동: -- --auto --count 5 / 수동 목록: -- --file scripts/quotes.txt)
 npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (키 없으면 RSS)
 ```
 > dev/build/lint는 `cross-env NODE_OPTIONS=--require=./scripts/patch-fs.cjs`로 감싸져 있음(로컬 한글 경로 드라이브 우회, Vercel 무해).
@@ -220,12 +222,13 @@ npm run fetch:youtube  # 유튜브 노래 수집 → data/youtube-songs.json (�
 
 ## 8. 마지막 업데이트 · 최근 커밋
 
-- **마지막 업데이트**: 2026-08-07
+- **마지막 업데이트**: 2026-08-08
 - **현재 브랜치**: `main` (배포와 동기화됨)
 - **날짜별 작업 메모는 [`WORKLOG.md`](WORKLOG.md) 참고** (회사 등 다른 PC에서 이어작업용).
+- **2026-08-08 작업**: 매일 자동 생성이 08-05 이후 멈춘 원인 = **명언 풀(94개) 소진**. → 생성기에 **AUTO 모드** 추가(AI가 매일 실존 유명 명언을 직접 골라옴, 중복 2중 방지), 워크플로를 `--auto --count 5`로 전환. 이제 목록 없이 **매일 5편 무한 생성**.
 - **최근 커밋** (최신 5개):
-  - `01def05` chore: daily auto-generated stories (2026-07-31)
-  - `f02641d` chore: daily auto-generated stories (2026-07-30)
-  - `97af3fe` SEO: situational long-tail keywords, hub pages, and Korean tag-page fix
-  - `421ee12` Remove reading-time label ("약 1분") from the UI
-  - `1a73d9a` Expand quote pool for SEO/traffic topics; log today's automation work
+  - `1e31790` Korean line-breaking: keep-all + pretty wrap on hero and headings
+  - `d72d760` Tighten mobile home hero: clear size hierarchy
+  - `10f14c6` docs: log SEO audit and optimization work
+  - `83e82ee` SEO: keyword-rich home intro, visible breadcrumbs, richer article OG
+  - `0046113` Paginated mobile list, story prompt upgrade, and SEO/OG polish

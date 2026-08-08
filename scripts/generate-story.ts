@@ -7,7 +7,10 @@
  *    and (d) is a sane length. Failures are retried, then skipped — a bad story
  *    is never published.
  *  - SKIP-USED: quotes already turned into a story are skipped, so re-running
- *    daily keeps producing NEW stories from the pool without duplicates.
+ *    daily keeps producing NEW stories without duplicates.
+ *  - AUTO MODE (--auto): the model proposes fresh, real, famous quotes each run
+ *    (avoiding every quote already used), so the daily job never runs dry. No
+ *    static list to refill. Use --count to set how many stories per run.
  *
  * The prompt/tone lives in scripts/prompt-template.txt.
  *
@@ -23,8 +26,9 @@
  *   GEMINI_MODEL     default "gemini-3-flash-preview"
  *
  * Usage:
+ *   npm run gen:story -- --auto --count 5                       # daily batch (self-sourcing)
  *   npm run gen:story -- --quote "…" --author 니체 --category courage
- *   npm run gen:story -- --file scripts/quotes.txt --count 10   # daily batch
+ *   npm run gen:story -- --file scripts/quotes.txt --count 10   # from a static list
  *
  * quotes.txt line format:  명언 | 카테고리슬러그 | 작가   (뒤 두 개는 생략 가능)
  */
@@ -44,7 +48,10 @@ const TEMPLATE = fs.readFileSync(path.join(ROOT, "scripts", "prompt-template.txt
 const args = parseArgs(process.argv.slice(2));
 const OUT_DIR = path.resolve(ROOT, (args.out as string) || "src/content/stories");
 const DELAY = Number(args.delay ?? 3000);
-const COUNT = args.count ? Number(args.count) : Infinity; // max stories to write
+// --auto: source fresh quotes from the model instead of a static file, so daily
+// runs never run out. Default target is 5 stories/run when --count is omitted.
+const AUTO = Boolean(args.auto);
+const COUNT = args.count ? Number(args.count) : AUTO ? 5 : Infinity; // max stories to write
 const MAX_RETRIES = 3;
 const CATEGORY_HINT = typeof args.category === "string" ? (args.category as string) : "";
 const AUTHOR_ARG = typeof args.author === "string" ? (args.author as string) : "";
@@ -88,8 +95,15 @@ async function main() {
     console.error("OPENAI_API_KEY is not set."); process.exit(1);
   }
 
+  // Quotes already turned into a story — used everywhere to guarantee no dupes.
+  const used = usedQuotes();
+
   let jobs: Job[] = [];
-  if (args.file) {
+  if (AUTO) {
+    // Let the model propose fresh, real, famous quotes we haven't used yet.
+    jobs = await autoJobs(COUNT, used);
+    console.log(`[gen] auto-sourced ${jobs.length} fresh quote(s) from the model.`);
+  } else if (args.file) {
     const lines = fs.readFileSync(path.resolve(ROOT, args.file as string), "utf8")
       .split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
     for (const line of lines) {
@@ -99,11 +113,10 @@ async function main() {
   } else if (args.quote) {
     jobs.push({ quote: args.quote as string, category: CATEGORY_HINT, author: AUTHOR_ARG });
   } else {
-    console.error('Provide --quote "..." or --file <path>.'); process.exit(1);
+    console.error('Provide --auto, --quote "...", or --file <path>.'); process.exit(1);
   }
 
   // Skip quotes that already have a story (so daily runs make NEW ones).
-  const used = usedQuotes();
   const before = jobs.length;
   jobs = jobs.filter((j) => !used.has(norm(j.quote)));
   if (before !== jobs.length) console.log(`[gen] skip ${before - jobs.length} already-used quote(s).`);
@@ -235,6 +248,85 @@ function writeStory(f: Fields, job: Job): string {
   if (fs.existsSync(file)) file = path.join(OUT_DIR, `${id}-${Date.now()}.json`);
   fs.writeFileSync(file, JSON.stringify(story, null, 2) + "\n", "utf8");
   return file;
+}
+
+// ── AUTO mode: source fresh famous quotes from the model ─────────────────────
+/**
+ * Collect `target × 3` fresh candidate quotes (buffer for validation misses),
+ * never repeating one that already has a story. Runs a few rounds because the
+ * model may re-suggest used ones, which we drop.
+ */
+async function autoJobs(target: number, used: Set<string>): Promise<Job[]> {
+  const finite = Number.isFinite(target) ? target : 5;
+  const want = Math.max(finite * 3, finite + 5);
+  const seen = new Set(used);                 // normalized keys, grows as we accept
+  const avoid = usedQuoteTexts().slice(-1200); // recent used quotes, capped for prompt size
+  const collected: Job[] = [];
+  for (let round = 1; round <= 4 && collected.length < want; round++) {
+    const need = Math.max(want - collected.length, 8);
+    let proposed: Job[] = [];
+    try {
+      proposed = await proposeQuotes(need, avoid);
+    } catch (e) {
+      console.warn(`[gen] propose round ${round} failed: ${(e as Error).message.slice(0, 100)}`);
+    }
+    let added = 0;
+    for (const p of proposed) {
+      const key = norm(p.quote);
+      if (!key || seen.has(key)) continue;    // drop dupes vs existing + this batch
+      seen.add(key);
+      avoid.push(p.quote);                    // and avoid repeating across rounds
+      collected.push(p);
+      added++;
+    }
+    console.log(`[gen] propose round ${round}: +${added} new (have ${collected.length}/${want}).`);
+    if (proposed.length) await sleep(1000);
+  }
+  return collected;
+}
+
+/** Ask the model for `n` real, well-known quotes by real people, avoiding `avoid`. */
+async function proposeQuotes(n: number, avoid: string[]): Promise<Job[]> {
+  const slugList = Object.entries(CATEGORY_MAP).map(([k, v]) => `${k}=${v}`).join(", ");
+  const avoidBlock = avoid.length
+    ? `\n\n【이미 사용한 명언 — 아래와 같거나 의미가 겹치면 절대 제외】\n${avoid.map((q) => `- ${q}`).join("\n")}`
+    : "";
+  const prompt = `너는 한국어 명언 큐레이터다. 아래 조건에 맞는, 서로 다른 실존 인물의 "진짜" 명언 ${n}개를 골라라.
+
+규칙:
+- 반드시 실재하고 널리 알려진, 출처가 분명한 명언만 쓴다. 지어내지 말 것. 조금이라도 불확실하면 제외.
+- 위인·철학자·작가·과학자·예술가·기업가·역사적 인물 등 유명 인물 중심으로, 저자·시대·문화가 골고루 섞이게.
+- 한국어로 쓴다. 외국어 원문은 자연스러운 한국어 번역으로.
+- 각 명언에 가장 잘 맞는 카테고리 슬러그 하나를 지정한다. 슬러그 목록: ${slugList}
+- 짧고 인상적인 한 줄(1~2문장) 위주로.${avoidBlock}
+
+순수 JSON만 출력(설명·코드블록 금지):
+{"quotes":[{"quote":"명언 본문","author":"인물 이름","category":"슬러그"}, ...]}`;
+  const raw = await callModel(prompt);
+  const obj = extractJson(raw);
+  const arr = Array.isArray((obj as any).quotes) ? (obj as any).quotes : [];
+  return arr
+    .map((x: any) => ({
+      quote: String(x?.quote ?? "").trim(),
+      author: String(x?.author ?? "").trim(),
+      category: normalizeCategory(String(x?.category ?? "life")),
+    }))
+    .filter((j: Job) => j.quote);
+}
+
+/** Raw (un-normalized) quotes that already have a story file, for prompt context. */
+function usedQuoteTexts(): string[] {
+  const out: string[] = [];
+  if (!fs.existsSync(OUT_DIR)) return out;
+  for (const f of fs.readdirSync(OUT_DIR)) {
+    if (!/\.(json|md|mdx)$/i.test(f)) continue;
+    const text = fs.readFileSync(path.join(OUT_DIR, f), "utf8");
+    const q = /\.json$/i.test(f)
+      ? safeJson(text)?.quote
+      : text.match(/^quote:\s*["']?(.+?)["']?\s*$/m)?.[1];
+    if (q) out.push(String(q).trim());
+  }
+  return out;
 }
 
 /** Normalized quotes that already have a story file. */

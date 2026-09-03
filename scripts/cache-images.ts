@@ -120,6 +120,21 @@ async function download(url: string, dest: string): Promise<void> {
   fs.writeFileSync(dest, buf);
 }
 
+function chooseCandidate(
+  candidates: Candidate[],
+  seed: string,
+  usedPhotoIds: Set<number>,
+  offset = 0,
+): Candidate | undefined {
+  if (candidates.length === 0) return undefined;
+  const start = (hash(seed) + offset) % candidates.length;
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[(start + i) % candidates.length];
+    if (!usedPhotoIds.has(c.id)) return c;
+  }
+  return candidates[start];
+}
+
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const stories = readStories();
@@ -139,9 +154,12 @@ async function main() {
 
   for (const s of stories) {
     const slug = idSlug(s);
-    const dest = path.join(OUT_DIR, `${slug}.jpg`);
-    if (!FORCE && fs.existsSync(dest)) {
-      skipped++;
+    const mainDest = path.join(OUT_DIR, `${slug}.jpg`);
+    const detailDest = path.join(OUT_DIR, `${slug}-detail.jpg`);
+    const needsMain = FORCE || !fs.existsSync(mainDest);
+    const needsDetail = FORCE || !fs.existsSync(detailDest);
+    if (!needsMain && !needsDetail) {
+      skipped += 2;
       continue;
     }
 
@@ -149,23 +167,30 @@ async function main() {
       const candidates = await fetchCandidates(s.photoKeyword);
       if (candidates.length === 0) continue;
 
-      // Start at a per-story offset, then take the first not-yet-used photo.
-      const start = hash(s.id) % candidates.length;
-      let chosen: Candidate | undefined;
-      for (let i = 0; i < candidates.length; i++) {
-        const c = candidates[(start + i) % candidates.length];
-        if (!usedPhotoIds.has(c.id)) {
-          chosen = c;
-          break;
+      if (needsMain) {
+        const chosen = chooseCandidate(candidates, s.id, usedPhotoIds, 0);
+        if (chosen) {
+          usedPhotoIds.add(chosen.id);
+          await download(chosen.url, mainDest);
+          downloaded++;
+          console.log(`  ✓ ${slug}.jpg  ← "${s.photoKeyword}"  (photo ${chosen.id})`);
         }
+      } else {
+        skipped++;
       }
-      // If every candidate is already used (small pools), fall back to offset.
-      chosen = chosen ?? candidates[start];
 
-      usedPhotoIds.add(chosen.id);
-      await download(chosen.url, dest);
-      downloaded++;
-      console.log(`  ✓ ${slug}.jpg  ← "${s.photoKeyword}"  (photo ${chosen.id})`);
+      if (needsDetail) {
+        const chosen = chooseCandidate(candidates, `${s.id}-detail`, usedPhotoIds, 5);
+        if (chosen) {
+          usedPhotoIds.add(chosen.id);
+          await download(chosen.url, detailDest);
+          downloaded++;
+          console.log(`  ✓ ${slug}-detail.jpg  ← "${s.photoKeyword}"  (photo ${chosen.id})`);
+        }
+      } else {
+        skipped++;
+      }
+
       await sleep(350); // stay under Pexels rate limits
     } catch (e) {
       console.warn(`  ! ${slug}: ${(e as Error).message}`);

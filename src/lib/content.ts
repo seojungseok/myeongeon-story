@@ -111,6 +111,16 @@ function normalize(
   };
 
   normalized.image = `/images/pexels/${imageSlug(normalized)}.jpg`;
+  const bodyImageFile = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "pexels",
+    `${imageSlug(normalized)}-detail.jpg`,
+  );
+  if (fs.existsSync(bodyImageFile)) {
+    normalized.bodyImage = `/images/pexels/${imageSlug(normalized)}-detail.jpg`;
+  }
   return normalized;
 }
 

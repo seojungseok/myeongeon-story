@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "@/config/site";
-import { categoryLabel } from "@/config/categories";
+import { categories, categoryLabel } from "@/config/categories";
 import {
   getAllStories,
   getPopularStories,
@@ -12,7 +12,6 @@ import type { Story } from "@/lib/types";
 import { StoryImage } from "@/components/StoryImage";
 import { StoryCard } from "@/components/StoryCard";
 import { SearchBar } from "@/components/SearchBar";
-import { CategoryBar } from "@/components/home/CategoryBar";
 import { Carousel } from "@/components/home/Carousel";
 import { ScrollRow } from "@/components/home/ScrollRow";
 import { collections } from "@/config/collections";
@@ -78,28 +77,33 @@ export default function HomePage() {
     all[0];
 
   return (
-    <div className="container-wide space-y-12">
-      {/* Category bar with edge arrows */}
-      <CategoryBar />
+    <div className="container-wide space-y-14">
+      {/* Premium home hero: search first, topic discovery on click. */}
+      <section className="pt-2">
+        <div className="grid gap-8 border-b border-line pb-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+          <div>
+            <p className="font-sans text-sm font-semibold text-brand">오늘 마음에 남을 한 문장</p>
+            <h1 className="mt-3 font-serif tracking-tight text-brand">
+              <span className="block text-[2.7rem] font-extrabold leading-tight sm:text-6xl">
+                {site.name}
+              </span>
+              <span className="mt-2 block text-xl font-bold leading-snug text-ink sm:text-3xl">
+                명언 한 줄로 읽는 옛날이야기
+              </span>
+            </h1>
+            <div className="mt-7 max-w-2xl">
+              <SearchBar />
+            </div>
+          </div>
 
-      {/* Compact hero + search — clear size hierarchy so mobile isn't crowded */}
-      <section className="text-center">
-        <h1 className="font-serif tracking-tight text-brand">
-          <span className="block text-[2rem] font-extrabold leading-tight sm:text-4xl">
-            {site.name}
-          </span>
-          <span className="mt-1.5 block text-base font-bold leading-snug text-ink sm:text-xl">
-            명언 한 줄로 읽는 옛날이야기
-          </span>
-        </h1>
-        <p className="mx-auto mt-3 max-w-xl px-2 font-sans text-[0.85rem] leading-relaxed text-subtle break-keep text-pretty sm:text-sm">
-          니체·공자·노자부터 이름 모를 옛사람의 지혜까지, 명언 한 줄을 할머니가
-          들려주듯 따뜻한 이야기로 풀어냅니다. 인생·위로·용기·사랑·가족 등 주제별
-          명언 모음과 위로가 되는 좋은 글귀를 매일 새로 만나보세요.
-        </p>
-        <div className="mx-auto mt-5 max-w-xl">
-          <SearchBar />
+          <div className="grid grid-cols-3 gap-3 rounded-2xl border border-line bg-white/55 p-4 font-sans shadow-card">
+            <Metric value={all.length} label="명언 이야기" />
+            <Metric value={categories.length} label="주제" />
+            <Metric value={collections.length} label="상황별 모음" />
+          </div>
         </div>
+
+        <TopicExplorer />
       </section>
 
       {/* Situational hubs — "이런 날 읽어보세요" (long-tail landing + internal links) */}
@@ -170,6 +174,43 @@ function SectionHead({ title, href }: { title: string; href?: string }) {
         </Link>
       )}
     </div>
+  );
+}
+
+function Metric({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="rounded-xl bg-paper px-3 py-4 text-center">
+      <p className="text-2xl font-bold text-ink">{value}</p>
+      <p className="mt-1 text-xs text-subtle">{label}</p>
+    </div>
+  );
+}
+
+function TopicExplorer() {
+  return (
+    <details id="categories" className="group mt-6 rounded-2xl border border-line bg-paper-deep/70">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-sans">
+        <span>
+          <span className="block text-sm font-semibold text-ink">다양한 주제의 명언 보기</span>
+          <span className="block text-xs text-subtle">인생, 위로, 용기, 가족처럼 필요한 마음을 골라 읽어보세요.</span>
+        </span>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-paper transition group-open:rotate-45">
+          +
+        </span>
+      </summary>
+      <div className="grid gap-2 border-t border-line px-5 py-5 sm:grid-cols-2 lg:grid-cols-3">
+        {categories.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/category/${c.slug}`}
+            className="rounded-xl border border-line bg-white px-4 py-3 font-sans transition hover:border-brand-soft hover:bg-paper"
+          >
+            <span className="block font-semibold text-ink">{c.label} 명언</span>
+            <span className="mt-1 block text-sm leading-snug text-subtle">{c.search} 글</span>
+          </Link>
+        ))}
+      </div>
+    </details>
   );
 }
 

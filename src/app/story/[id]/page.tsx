@@ -143,7 +143,7 @@ export default function StoryPage({ params }: { params: { id: string } }) {
         </figure>
 
         {/* Body */}
-        <StoryBody text={story.story} />
+        <StoryBody text={story.story} image={story.bodyImage} title={story.title} />
 
         {/* ── AD ② : mid body ── */}
         <AdSlot id="②" />

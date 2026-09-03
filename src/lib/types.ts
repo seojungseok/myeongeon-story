@@ -39,6 +39,8 @@ export type Story = {
    * "/images/pexels/effort.jpg". Falls back to a gradient if missing.
    */
   image?: string;
+  /** Optional second image shown inside the story body. */
+  bodyImage?: string;
   /** Source format, for debugging. */
   _source?: "json" | "markdown";
 };

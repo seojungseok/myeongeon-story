@@ -25,9 +25,9 @@ export function SearchBar({ initial = "" }: { initial?: string }) {
         onChange={(e) => setQ(e.target.value)}
         placeholder="제목·명언·태그로 이야기 찾기"
         aria-label="이야기 검색"
-        className="w-full rounded-full border border-line bg-white px-5 py-3 font-sans text-base text-ink outline-none transition duration-250 focus:border-brand"
+        className="min-w-0 w-full rounded-full border border-line bg-white px-4 py-3 font-sans text-base text-ink outline-none transition duration-250 focus:border-brand sm:px-5"
       />
-      <button type="submit" className="btn shrink-0">
+      <button type="submit" className="btn shrink-0 px-5 sm:px-6">
         검색
       </button>
     </form>

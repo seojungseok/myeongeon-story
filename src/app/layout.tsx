@@ -75,7 +75,7 @@ export default function RootLayout({
         )}
         <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
         <SiteHeader />
-        <main className="pb-24 pt-8">{children}</main>
+        <main className="pb-20 pt-6 sm:pb-24 sm:pt-8">{children}</main>
         <SiteFooter />
       </body>
     </html>
@@ -85,14 +85,14 @@ export default function RootLayout({
 function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur">
-      <div className="container-wide flex items-center justify-between py-3.5">
+      <div className="container-wide flex items-center justify-between py-3 sm:py-3.5">
         <Link
           href="/"
-          className="font-serif text-2xl font-extrabold tracking-tight text-brand"
+          className="font-serif text-[1.45rem] font-extrabold tracking-tight text-brand sm:text-2xl"
         >
           {site.name}
         </Link>
-        <nav className="flex items-center gap-5 font-sans text-sm text-subtle">
+        <nav className="flex items-center gap-4 font-sans text-[0.8rem] text-subtle sm:gap-5 sm:text-sm">
           <Link href="/#categories" className="transition-colors hover:text-brand">
             주제별
           </Link>

@@ -77,49 +77,29 @@ export default function HomePage() {
     all[0];
 
   return (
-    <div className="container-wide space-y-14">
+    <div className="container-wide space-y-10 sm:space-y-14">
       {/* Premium home hero: search first, topic discovery on click. */}
       <section className="pt-2">
-        <div className="grid gap-8 border-b border-line pb-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <div className="border-b border-line pb-8 sm:pb-10">
           <div>
-            <p className="font-sans text-sm font-semibold text-brand">오늘 마음에 남을 한 문장</p>
+            <p className="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-brand sm:text-sm">
+              오늘 마음에 남을 한 문장
+            </p>
             <h1 className="mt-3 font-serif tracking-tight text-brand">
-              <span className="block text-[2.7rem] font-extrabold leading-tight sm:text-6xl">
+              <span className="block text-[2.35rem] font-extrabold leading-tight sm:text-6xl">
                 {site.name}
               </span>
-              <span className="mt-2 block text-xl font-bold leading-snug text-ink sm:text-3xl">
+              <span className="mt-2 block text-lg font-bold leading-snug text-ink sm:text-3xl">
                 명언 한 줄로 읽는 옛날이야기
               </span>
             </h1>
-            <div className="mt-7 max-w-2xl">
+            <div className="mt-6 max-w-2xl sm:mt-7">
               <SearchBar />
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 rounded-2xl border border-line bg-white/55 p-4 font-sans shadow-card">
-            <Metric value={all.length} label="명언 이야기" />
-            <Metric value={categories.length} label="주제" />
-            <Metric value={collections.length} label="상황별 모음" />
           </div>
         </div>
 
         <TopicExplorer />
-      </section>
-
-      {/* Situational hubs — "이런 날 읽어보세요" (long-tail landing + internal links) */}
-      <section>
-        <SectionHead title="이런 날 읽어보세요" />
-        <div className="flex flex-wrap gap-2">
-          {collections.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/read/${c.slug}`}
-              className="rounded-full border border-line bg-white/70 px-4 py-2 font-sans text-sm text-ink transition hover:border-brand hover:text-brand"
-            >
-              {c.title}
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* 1) 추천 (랜덤) — main banner */}
@@ -155,6 +135,23 @@ export default function HomePage() {
           </ScrollRow>
         </section>
       )}
+
+      {/* Situational hubs stay available for search and discovery without
+          competing with the primary reading flow on the first screen. */}
+      <section>
+        <SectionHead title="이런 날 읽어보세요" />
+        <div className="flex flex-wrap gap-2">
+          {collections.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/read/${c.slug}`}
+              className="rounded-full border border-line bg-white/70 px-4 py-2 font-sans text-sm text-ink transition hover:border-brand hover:text-brand"
+            >
+              {c.title}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
@@ -177,28 +174,19 @@ function SectionHead({ title, href }: { title: string; href?: string }) {
   );
 }
 
-function Metric({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="rounded-xl bg-paper px-3 py-4 text-center">
-      <p className="text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-1 text-xs text-subtle">{label}</p>
-    </div>
-  );
-}
-
 function TopicExplorer() {
   return (
-    <details id="categories" className="group mt-6 rounded-2xl border border-line bg-paper-deep/70">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-sans">
+    <details id="categories" className="group mt-5 rounded-xl border border-line bg-paper-deep/70 sm:mt-6 sm:rounded-2xl">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 font-sans sm:px-5 sm:py-4">
         <span>
-          <span className="block text-sm font-semibold text-ink">다양한 주제의 명언 보기</span>
-          <span className="block text-xs text-subtle">인생, 위로, 용기, 가족처럼 필요한 마음을 골라 읽어보세요.</span>
+          <span className="block text-sm font-semibold text-ink sm:text-base">다양한 주제의 명언 보기</span>
+          <span className="mt-0.5 block text-xs text-subtle sm:text-sm">인생, 위로, 용기, 가족 등 원하는 마음을 골라보세요.</span>
         </span>
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-paper transition group-open:rotate-45">
+        <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-xl leading-none text-paper transition group-open:rotate-45 sm:h-9 sm:w-9">
           +
         </span>
       </summary>
-      <div className="grid gap-2 border-t border-line px-5 py-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 border-t border-line px-4 py-4 sm:grid-cols-2 sm:px-5 sm:py-5 lg:grid-cols-3">
         {categories.map((c) => (
           <Link
             key={c.slug}

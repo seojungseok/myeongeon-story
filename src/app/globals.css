@@ -86,7 +86,7 @@ body {
 
   /* ── Cards: thin border, whisper-soft shadow ── */
   .card {
-    @apply block rounded-2xl border border-line bg-white/70 shadow-card transition
+    @apply block rounded-xl border border-line bg-white/70 shadow-card transition
       duration-250 hover:-translate-y-0.5 hover:border-brand-soft hover:shadow-card-hover;
   }
 
@@ -142,6 +142,22 @@ body {
     @apply absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center
       justify-center rounded-full border border-line bg-paper font-sans text-lg
       leading-none text-brand shadow-card transition duration-250 hover:bg-brand-tint;
+  }
+}
+
+@media (max-width: 639px) {
+  body {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .container-wide {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .section-head {
+    margin-bottom: 0.75rem;
   }
 }
 
